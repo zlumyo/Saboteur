@@ -5,54 +5,109 @@ using System.Linq;
 
 namespace SaboteurFoundation
 {
+    /// <summary>
+    /// Stores state of saboteur-game and provides operations to mutate once.
+    /// </summary>
     public class SaboteurGame
     {
+        /// <summary>
+        /// Minimum count of players in game.
+        /// </summary>
         public const int MIN_PLAYERS_COUNT = 3;
+        /// <summary>
+        /// Maximum count of players in game.
+        /// </summary>
         public const int MAX_PLAYERS_COUNT = 10;
 
+        /// <summary>
+        /// Flag of additional rule which only allows to expand tunnel.
+        /// </summary>
         bool WithoutDeadlocks { get; }
+        /// <summary>
+        /// Flag of additional rule which bans grabbing gold by broken players.
+        /// </summary>
         bool SkipLoosers { get; }
+        /// <summary>
+        /// Number of round.
+        /// </summary>
         int Round { get; }
-        Player[] Players { get; }
+        /// <summary>
+        /// Set of players which are participating in game.
+        /// </summary>
+        HashSet<Player> Players { get; }
 
+        /// <summary>
+        /// Gold cards.
+        /// </summary>
         private int[] _goldHeap;
+        /// <summary>
+        /// Deck of gamecards.
+        /// </summary>
         private Stack<Card> _deck;
+        /// <summary>
+        /// Gamefield instance.
+        /// </summary>
         private GameField _Field { get; }
 
-        private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, string[] playersNames)
+        /// <summary>
+        /// Local random engine.
+        /// </summary>
+        private readonly Random _rnd;
+
+        /// <summary>
+        /// Initializes game with zero-state.
+        /// </summary>
+        /// <param name="withoutDeadlocks">Ban deadlocks building?</param>
+        /// <param name="skipLoosers">Ban broken players to grab a gold?</param>
+        /// <param name="playersNames">Set of players.</param>
+        /// <param name="rnd">Optional custom random engine.</param>
+        private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, HashSet<string> playersNames, Random rnd = null)
         {
-            var rnd = new Random();
-            var playersRoles = _GenerateRoles(playersNames.Length, rnd);
-            _deck = new Stack<Card>(_GenerateDeck(rnd));
+            _rnd = rnd ?? new Random();
+            var playersRoles = _GenerateRoles(playersNames.Count, _rnd);
+            _deck = new Stack<Card>(_GenerateDeck(_rnd));
             _goldHeap = new int[28]
             {
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                 2, 2, 2, 2, 2, 2, 2, 2,
                 3, 3, 3, 3,
             };
-            var cardsInHand = _CardsInHandByPlayersCount(playersNames.Length);
+            var cardsInHand = _CardsInHandByPlayersCount(playersNames.Count);
 
             WithoutDeadlocks = withoutDeadlocks;
             SkipLoosers = skipLoosers;
-            playersNames.Zip(playersRoles, (name, role) => (name, role)).Select(pair => {
+            Players = playersNames.Zip(playersRoles, (name, role) => (name, role)).Select(pair => {
                 var result = new Player(pair.Item1, pair.Item2, _deck.Take(cardsInHand).ToArray());
                 _deck = new Stack<Card>(_deck.Skip(cardsInHand));
                 return result;
-            });
+            }).ToHashSet();
             Round = 1;
 
             var endVariants = Enum.GetValues(typeof(EndVariant)).Cast<EndVariant>();
-            _Field = new GameField(endVariants.ElementAt(rnd.Next(endVariants.Count())));
+            _Field = new GameField(endVariants.ElementAt(_rnd.Next(endVariants.Count())));
         }
 
+        /// <summary>
+        /// Creates new game.
+        /// </summary>
+        /// <param name="withoutDeadlocks">Ban deadlocks building?</param>
+        /// <param name="skipLoosers">Ban broken players to grab a gold?</param>
+        /// <param name="playersNames">Set of players.</param>
+        /// <returns>Instance of new game.</returns>
         public static SaboteurGame NewGame(bool withoutDeadlocks, bool skipLoosers, string[] playersNames)
         {
             if (playersNames.Length < 3 || playersNames.Length > 10)
                 throw new ArgumentOutOfRangeException($"Players count must be between {MIN_PLAYERS_COUNT} and {MAX_PLAYERS_COUNT}.");
 
-            return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames);
+            return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames.ToHashSet());
         }
 
+        /// <summary>
+        /// Generates random sequence of roles of limited count.
+        /// </summary>
+        /// <param name="rolesCount">Limit of sequence.</param>
+        /// <param name="rnd">Random engine.</param>
+        /// <returns>Sequence of roles.</returns>
         private static IEnumerable<GameRole> _GenerateRoles(int rolesCount, Random rnd)
         {
             var _playersCountToRolesCount = new Dictionary<int, (int, int)>(8)
@@ -81,6 +136,11 @@ namespace SaboteurFoundation
             yield break;
         }
 
+        /// <summary>
+        /// Generates random sequence of gamecards.
+        /// </summary>
+        /// <param name="rnd">Random engine.</param>
+        /// <returns>Sequence of gamecards.</returns>
         private static IEnumerable<Card> _GenerateDeck(Random rnd)
         {
             var allCardsCount = 67;
@@ -125,12 +185,16 @@ namespace SaboteurFoundation
 
                 quertet.Item2--;
                 allCardsCount--;
-                if (quertet.Item2 == 0) allCards.RemoveAt(index);
+                if (quertet.Item2 == 0) allCards.RemoveAt(index);   
             }
 
             yield break;
         }
 
+        /// <summary>
+        /// Calculates intervals of probability for gamecrads.
+        /// </summary>
+        /// <param name="data">List of quartes: Card, count of this Card, start and end of interval</param>
         private static void _CountIntervals(List<(Card, int, double, double)> data)
         {
             var totalCount = data.Sum(quartet => quartet.Item2);
@@ -146,6 +210,11 @@ namespace SaboteurFoundation
             lastEnd.Item4 = 1d;
         }
 
+        /// <summary>
+        /// Map players count to count of cards in their hands.
+        /// </summary>
+        /// <param name="playersCount"></param>
+        /// <returns>Count of cards.</returns>
         private static int _CardsInHandByPlayersCount(int playersCount)
         {
             if (playersCount >= 3 && playersCount <= 5) return 6;

@@ -27,5 +27,15 @@ namespace SaboteurFoundation
                 EndsStatuses.Add(endVariant, TargetStatus.UNKNOW);
             }
         }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Player && (obj as Player).Name == Name;
+        }
     }
 }
