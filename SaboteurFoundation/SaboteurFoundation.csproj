@@ -106,8 +106,27 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Cards\AffectFieldCard.cs" />
+    <Compile Include="Cards\AffectPlayerCard.cs" />
+    <Compile Include="Cards\Card.cs" />
+    <Compile Include="Cards\CollapseCard.cs" />
+    <Compile Include="Cards\HealAlternativeCard.cs" />
+    <Compile Include="Cards\HealCard.cs" />
+    <Compile Include="Cards\InvestigateCard.cs" />
+    <Compile Include="CellType.cs" />
+    <Compile Include="Connector.cs" />
+    <Compile Include="ConnectorType.cs" />
+    <Compile Include="Cards\DebufCard.cs" />
+    <Compile Include="Effect.cs" />
+    <Compile Include="EndVariant.cs" />
+    <Compile Include="GameCell.cs" />
+    <Compile Include="GameField.cs" />
+    <Compile Include="GameRole.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaboteurGame.cs" />
+    <Compile Include="TargetStatus.cs" />
+    <Compile Include="Cards\TunnelCard.cs" />
     <EmbeddedResource Include="Properties\SaboteurFoundation.rd.xml" />
   </ItemGroup>
   <ItemGroup>
