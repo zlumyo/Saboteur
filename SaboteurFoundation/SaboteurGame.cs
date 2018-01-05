@@ -160,7 +160,7 @@ namespace SaboteurFoundation
         /// </summary>
         /// <param name="rnd">Random engine.</param>
         /// <returns>Sequence of gamecards.</returns>
-        private static IEnumerable<Card> _GenerateDeck(Random rnd)
+        internal static IEnumerable<Card> _GenerateDeck(Random rnd)
         {
             var allCardsCount = 67;
             var allCards = new List<(Card, int, double, double)>(allCardsCount)
@@ -213,7 +213,7 @@ namespace SaboteurFoundation
         /// <summary>
         /// Calculates intervals of probability for gamecrads.
         /// </summary>
-        /// <param name="data">List of quartes: Card, count of this Card, start and end of interval</param>
+        /// <param name="data">List of quartes: Card, count of this Card, start and end of interval.</param>
         private static void _CountIntervals(List<(Card, int, double, double)> data)
         {
             var totalCount = data.Sum(quartet => quartet.Item2);
