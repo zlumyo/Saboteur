@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SaboteurFoundation;
 using System;
+using System.Linq;
 
 namespace SaboteurTest
 {
@@ -40,6 +41,22 @@ namespace SaboteurTest
             Assert.IsFalse(_game.SkipLoosers, "Simple game failed.");
             Assert.IsFalse(_gameWithoutDeadlocks.SkipLoosers, "WithoutDeadlocks game failed.");
             Assert.IsTrue(_gameSkipLoosers.SkipLoosers, "SkipLoosers game failed.");
+        }
+
+        [TestMethod]
+        public void RoundValue()
+        {
+            Assert.AreEqual(1, _game.Round, "Simple game failed.");
+            Assert.AreEqual(1, _gameWithoutDeadlocks.Round, "WithoutDeadlocks game failed.");
+            Assert.AreEqual(1, _gameSkipLoosers.Round, "SkipLoosers game failed.");
+        }
+
+        [TestMethod]
+        public void PlayersList()
+        {
+            CollectionAssert.AreEqual(_minPlayers, _game.Players.Select(p => p.Name).ToArray());
+            CollectionAssert.AreEqual(_minPlayers, _gameWithoutDeadlocks.Players.Select(p => p.Name).ToArray());
+            CollectionAssert.AreEqual(_minPlayers, _gameSkipLoosers.Players.Select(p => p.Name).ToArray());
         }
 
         [DataTestMethod]
