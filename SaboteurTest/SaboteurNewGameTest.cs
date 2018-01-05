@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SaboteurFoundation;
+using SaboteurFoundation.Cards;
 using System;
 using System.Linq;
 
@@ -88,6 +89,29 @@ namespace SaboteurTest
         {
             var groups = _game._goldHeap.GroupBy(x => x).Select(x => (x.Key, x.Sum())).ToDictionary(x => x.Key, y => y.Item2);
             Assert.AreEqual(16 / Convert.ToInt32(Math.Pow(2, value-1)), groups[value] / value, $"{value}'s is failed");
+        }
+
+        [TestMethod]
+        public void CheckGenerateDeck()
+        {
+            var rnd = new Random(42);
+
+            var deck = SaboteurGame._GenerateDeck(rnd).ToArray();
+            Assert.AreEqual(67, deck.Length, "Total count is failed.");
+
+            var tunnelCount = deck.Count(x => x is TunnelCard);
+            var investigateCount = deck.Count(x => x is InvestigateCard);
+            var collapseCount = deck.Count(x => x is CollapseCard);
+            var healCount = deck.Count(x => x is HealCard);
+            var healAlternativeCount = deck.Count(x => x is HealAlternativeCard);
+            var debufCount = deck.Count(x => x is DebufCard);
+
+            Assert.AreEqual(40, tunnelCount, "Tunnel count is failed.");
+            Assert.AreEqual(6, investigateCount, "Investigate count is failed.");
+            Assert.AreEqual(3, collapseCount, "Collapse count is failed.");
+            Assert.AreEqual(6, healCount, "Heal count is failed.");
+            Assert.AreEqual(3, healAlternativeCount, "HealAlternative count is failed.");
+            Assert.AreEqual(9, debufCount, "Debuf count is failed.");
         }
     }
 }
