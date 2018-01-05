@@ -35,6 +35,10 @@ namespace SaboteurFoundation
         /// Set of players which are participating in game.
         /// </summary>
         HashSet<Player> Players { get; }
+        /// <summary>
+        /// Reference to current player.
+        /// </summary>
+        Player CurrentPlayer => _playerEnumerator.Current;
 
         /// <summary>
         /// Gold cards.
@@ -48,11 +52,14 @@ namespace SaboteurFoundation
         /// Gamefield instance.
         /// </summary>
         private GameField _Field { get; }
-
         /// <summary>
         /// Local random engine.
         /// </summary>
         private readonly Random _rnd;
+        /// <summary>
+        /// Enumerator of Players' HashSet.
+        /// </summary>
+        private IEnumerator<Player> _playerEnumerator;
 
         /// <summary>
         /// Initializes game with zero-state.
@@ -61,6 +68,9 @@ namespace SaboteurFoundation
         /// <param name="skipLoosers">Ban broken players to grab a gold?</param>
         /// <param name="playersNames">Set of players.</param>
         /// <param name="rnd">Optional custom random engine.</param>
+        /// <remarks>
+        /// Player which got cards last will turn first.
+        /// </remarks>
         private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, HashSet<string> playersNames, Random rnd = null)
         {
             _rnd = rnd ?? new Random();
@@ -76,11 +86,15 @@ namespace SaboteurFoundation
 
             WithoutDeadlocks = withoutDeadlocks;
             SkipLoosers = skipLoosers;
-            Players = playersNames.Zip(playersRoles, (name, role) => (name, role)).Select(pair => {
+            var temp = playersNames.Zip(playersRoles, (name, role) => (name, role)).Select(pair => {
                 var result = new Player(pair.name, pair.role, _deck.Take(cardsInHand).ToArray());
                 _deck = new Stack<Card>(_deck.Skip(cardsInHand));
                 return result;
-            }).ToHashSet();
+            });
+            var lastPlayer = temp.Last();
+            Players = temp.ToHashSet();
+            _playerEnumerator = temp.GetEnumerator();
+            while (_playerEnumerator.Current != lastPlayer) _playerEnumerator.MoveNext();
             Round = 1;
 
             var endVariants = Enum.GetValues(typeof(EndVariant)).Cast<EndVariant>();
@@ -100,6 +114,11 @@ namespace SaboteurFoundation
                 throw new ArgumentOutOfRangeException($"Players count must be between {MIN_PLAYERS_COUNT} and {MAX_PLAYERS_COUNT}.");
 
             return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames.ToHashSet());
+        }
+
+        public Player ExecuteTurn()
+        {
+            return _NextPlayer();
         }
 
         /// <summary>
@@ -220,6 +239,16 @@ namespace SaboteurFoundation
             if (playersCount >= 3 && playersCount <= 5) return 6;
             else if (playersCount >= 6 && playersCount <= 7) return 5;
             else return 4;
+        }
+
+        private Player _NextPlayer()
+        {
+            if (!_playerEnumerator.MoveNext())
+            {
+                _playerEnumerator.Reset();
+            }
+
+            return CurrentPlayer;
         }
     }
 }
