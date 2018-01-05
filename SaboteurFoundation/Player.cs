@@ -37,5 +37,15 @@ namespace SaboteurFoundation
         {
             return obj is Player p && p.Name == Name;
         }
+
+        public static bool operator ==(Player p1, Player p2)
+        {
+            return p1.Equals(p2);
+        }
+
+        public static bool operator !=(Player p1, Player p2)
+        {
+            return !p1.Equals(p2);
+        }
     }
 }

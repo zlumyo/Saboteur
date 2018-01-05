@@ -93,7 +93,7 @@ namespace SaboteurFoundation
             });
             var lastPlayer = temp.Last();
             Players = temp.ToHashSet();
-            _playerEnumerator = temp.GetEnumerator();
+            _playerEnumerator = Players.GetEnumerator();
             while (_playerEnumerator.Current != lastPlayer) _playerEnumerator.MoveNext();
             Round = 1;
 
