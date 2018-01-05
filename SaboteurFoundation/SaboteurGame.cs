@@ -242,6 +242,10 @@ namespace SaboteurFoundation
             else return 4;
         }
 
+        /// <summary>
+        /// Sets active next player by round.
+        /// </summary>
+        /// <returns>New active player.</returns>
         private Player _NextPlayer()
         {
             if (!_playerEnumerator.MoveNext())
