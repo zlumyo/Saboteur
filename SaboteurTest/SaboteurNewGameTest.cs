@@ -80,13 +80,14 @@ namespace SaboteurTest
             );
         }
 
-        [TestMethod]
-        public void CheckGoldHeap()
+        [DataTestMethod]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(3)]
+        public void CheckGoldHeap(int value)
         {
             var groups = _game._goldHeap.GroupBy(x => x).Select(x => (x.Key, x.Sum())).ToDictionary(x => x.Key, y => y.Item2);
-            Assert.AreEqual(16, groups[1], "One's is failed");
-            Assert.AreEqual(8, groups[2] / 2, "Two's is failed");
-            Assert.AreEqual(4, groups[3] / 3, "Three's is failed");
+            Assert.AreEqual(16 / Convert.ToInt32(Math.Pow(2, value-1)), groups[value] / value, $"{value}'s is failed");
         }
     }
 }
