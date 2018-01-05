@@ -17,7 +17,7 @@
 
         public override bool Equals(object obj)
         {
-            return obj is Connector && (obj as Connector).Type == Type;
+            return obj is Connector c && c.Type == Type;
         }
     }
 }

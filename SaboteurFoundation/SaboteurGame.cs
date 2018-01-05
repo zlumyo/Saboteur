@@ -77,7 +77,7 @@ namespace SaboteurFoundation
             WithoutDeadlocks = withoutDeadlocks;
             SkipLoosers = skipLoosers;
             Players = playersNames.Zip(playersRoles, (name, role) => (name, role)).Select(pair => {
-                var result = new Player(pair.Item1, pair.Item2, _deck.Take(cardsInHand).ToArray());
+                var result = new Player(pair.name, pair.role, _deck.Take(cardsInHand).ToArray());
                 _deck = new Stack<Card>(_deck.Skip(cardsInHand));
                 return result;
             }).ToHashSet();

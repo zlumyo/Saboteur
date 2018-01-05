@@ -35,7 +35,7 @@ namespace SaboteurFoundation
 
         public override bool Equals(object obj)
         {
-            return obj is Player && (obj as Player).Name == Name;
+            return obj is Player p && p.Name == Name;
         }
     }
 }
