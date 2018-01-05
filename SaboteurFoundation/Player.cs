@@ -8,7 +8,7 @@ namespace SaboteurFoundation
         string Name { get; }
         int Gold { get; }
         GameRole Role { get; }
-        Card[] Hand { get; }
+        List<Card> Hand { get; }
         HashSet<Effect> Debufs { get; }
 
         Dictionary<EndVariant, TargetStatus> EndsStatuses { get; }
@@ -18,7 +18,7 @@ namespace SaboteurFoundation
             Name = name;
             Role = role;
             Gold = 0;
-            Hand = hand;
+            Hand = new List<Card>(hand);
             Debufs = new HashSet<Effect>();
 
             EndsStatuses = new Dictionary<EndVariant, TargetStatus>(3);
