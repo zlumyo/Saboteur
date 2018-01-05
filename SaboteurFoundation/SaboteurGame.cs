@@ -22,23 +22,23 @@ namespace SaboteurFoundation
         /// <summary>
         /// Flag of additional rule which only allows to expand tunnel.
         /// </summary>
-        bool WithoutDeadlocks { get; }
+        public bool WithoutDeadlocks { get; }
         /// <summary>
         /// Flag of additional rule which bans grabbing gold by broken players.
         /// </summary>
-        bool SkipLoosers { get; }
+        public bool SkipLoosers { get; }
         /// <summary>
         /// Number of round.
         /// </summary>
-        int Round { get; }
+        public int Round { get; }
         /// <summary>
         /// Set of players which are participating in game.
         /// </summary>
-        HashSet<Player> Players { get; }
+        public HashSet<Player> Players { get; }
         /// <summary>
         /// Reference to current player.
         /// </summary>
-        Player CurrentPlayer => _playerEnumerator.Current;
+        public Player CurrentPlayer => _playerEnumerator.Current;
 
         /// <summary>
         /// Gold cards.
