@@ -1,6 +1,6 @@
 ﻿namespace SaboteurFoundation
 {
-    enum TargetStatus
+    public enum TargetStatus
     {
         UNKNOW, REAL, FAKE
     }

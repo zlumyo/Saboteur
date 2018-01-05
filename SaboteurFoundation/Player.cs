@@ -5,13 +5,12 @@ namespace SaboteurFoundation
 {
     public class Player
     {
-        string Name { get; }
-        int Gold { get; }
-        GameRole Role { get; }
-        List<Card> Hand { get; }
-        HashSet<Effect> Debufs { get; }
-
-        Dictionary<EndVariant, TargetStatus> EndsStatuses { get; }
+        public string Name { get; }
+        public int Gold { get; }
+        public GameRole Role { get; }
+        public List<Card> Hand { get; }
+        public HashSet<Effect> Debufs { get; }
+        public Dictionary<EndVariant, TargetStatus> EndsStatuses { get; }
 
         public Player(string name, GameRole role, Card[] hand)
         {
