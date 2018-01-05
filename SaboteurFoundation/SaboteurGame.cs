@@ -73,6 +73,7 @@ namespace SaboteurFoundation
         /// </remarks>
         private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, HashSet<string> playersNames, Random rnd)
         {
+            _rnd = rnd;
             var playersRoles = _GenerateRoles(playersNames.Count, _rnd);
             _deck = new Stack<Card>(_GenerateDeck(_rnd));
             _goldHeap = new int[28]
