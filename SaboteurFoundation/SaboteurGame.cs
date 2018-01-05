@@ -94,7 +94,7 @@ namespace SaboteurFoundation
             var lastPlayer = temp.Last();
             Players = temp.ToHashSet();
             _playerEnumerator = Players.GetEnumerator();
-            while (_playerEnumerator.Current != lastPlayer) _playerEnumerator.MoveNext();
+            while (lastPlayer != _playerEnumerator.Current) _playerEnumerator.MoveNext();
             Round = 1;
 
             var endVariants = Enum.GetValues(typeof(EndVariant)).Cast<EndVariant>();
