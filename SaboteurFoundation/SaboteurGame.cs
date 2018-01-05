@@ -110,7 +110,7 @@ namespace SaboteurFoundation
         /// <returns>Instance of new game.</returns>
         public static SaboteurGame NewGame(bool withoutDeadlocks, bool skipLoosers, string[] playersNames)
         {
-            if (playersNames.Length < 3 || playersNames.Length > 10)
+            if (playersNames.Length < MIN_PLAYERS_COUNT || playersNames.Length > MAX_PLAYERS_COUNT)
                 throw new ArgumentOutOfRangeException($"Players count must be between {MIN_PLAYERS_COUNT} and {MAX_PLAYERS_COUNT}.");
 
             return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames.ToHashSet());
