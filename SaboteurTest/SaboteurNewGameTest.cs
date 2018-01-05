@@ -34,6 +34,14 @@ namespace SaboteurTest
             Assert.IsFalse(_gameSkipLoosers.WithoutDeadlocks, "SkipLoosers game failed.");
         }
 
+        [TestMethod]
+        public void SkipLoosersValue()
+        {
+            Assert.IsFalse(_game.SkipLoosers, "Simple game failed.");
+            Assert.IsFalse(_gameWithoutDeadlocks.SkipLoosers, "WithoutDeadlocks game failed.");
+            Assert.IsTrue(_gameSkipLoosers.SkipLoosers, "SkipLoosers game failed.");
+        }
+
         [DataTestMethod]
         [DataRow(_tooLessPlayers)]
         [DataRow(_tooMuchPlayers)]
