@@ -43,15 +43,15 @@ namespace SaboteurFoundation
         /// <summary>
         /// Gold cards.
         /// </summary>
-        private int[] _goldHeap;
+        internal int[] _goldHeap;
         /// <summary>
         /// Deck of gamecards.
         /// </summary>
-        private Stack<Card> _deck;
+        internal Stack<Card> _deck;
         /// <summary>
         /// Gamefield instance.
         /// </summary>
-        private GameField _Field { get; }
+        internal GameField _Field { get; }
         /// <summary>
         /// Local random engine.
         /// </summary>
