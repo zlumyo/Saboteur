@@ -204,7 +204,8 @@ namespace SaboteurFoundation
 
                 quertet.Item2--;
                 allCardsCount--;
-                if (quertet.Item2 == 0) allCards.RemoveAt(index);   
+                if (quertet.Item2 == 0) allCards.RemoveAt(index);
+                else allCards[index] = quertet;
             }
 
             yield break;
@@ -226,7 +227,7 @@ namespace SaboteurFoundation
                 previous = result;
             }
             var lastEnd = data[data.Count - 1];
-            lastEnd.Item4 = 1d;
+            data[data.Count - 1] = (lastEnd.Item1, lastEnd.Item2, lastEnd.Item3, 1d);
         }
 
         /// <summary>
