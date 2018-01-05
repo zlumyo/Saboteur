@@ -79,5 +79,14 @@ namespace SaboteurTest
                 $"Players count - {splittedPlayers.Length}"
             );
         }
+
+        [TestMethod]
+        public void CheckGoldHeap()
+        {
+            var groups = _game._goldHeap.GroupBy(x => x).Select(x => (x.Key, x.Sum())).ToDictionary(x => x.Key, y => y.Item2);
+            Assert.AreEqual(16, groups[1], "One's is failed");
+            Assert.AreEqual(8, groups[2] / 2, "Two's is failed");
+            Assert.AreEqual(4, groups[3] / 3, "Three's is failed");
+        }
     }
 }
