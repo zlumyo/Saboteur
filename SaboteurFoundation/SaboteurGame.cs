@@ -71,9 +71,8 @@ namespace SaboteurFoundation
         /// <remarks>
         /// Player which got cards last will turn first.
         /// </remarks>
-        private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, HashSet<string> playersNames, Random rnd = null)
+        private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, HashSet<string> playersNames, Random rnd)
         {
-            _rnd = rnd ?? new Random();
             var playersRoles = _GenerateRoles(playersNames.Count, _rnd);
             _deck = new Stack<Card>(_GenerateDeck(_rnd));
             _goldHeap = new int[28]
@@ -108,12 +107,12 @@ namespace SaboteurFoundation
         /// <param name="skipLoosers">Ban broken players to grab a gold?</param>
         /// <param name="playersNames">Set of players.</param>
         /// <returns>Instance of new game.</returns>
-        public static SaboteurGame NewGame(bool withoutDeadlocks, bool skipLoosers, string[] playersNames)
+        public static SaboteurGame NewGame(bool withoutDeadlocks, bool skipLoosers, string[] playersNames, Random rnd = null)
         {
             if (playersNames.Length < MIN_PLAYERS_COUNT || playersNames.Length > MAX_PLAYERS_COUNT)
                 throw new ArgumentOutOfRangeException($"Players count must be between {MIN_PLAYERS_COUNT} and {MAX_PLAYERS_COUNT}.");
 
-            return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames.ToHashSet());
+            return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames.ToHashSet(), rnd ?? new Random());
         }
 
         public Player ExecuteTurn()
