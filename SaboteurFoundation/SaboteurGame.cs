@@ -1,4 +1,5 @@
 ﻿using SaboteurFoundation.Cards;
+using SaboteurFoundation.Turn;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,10 @@ namespace SaboteurFoundation
         /// Maximum count of players in game.
         /// </summary>
         public const int MAX_PLAYERS_COUNT = 10;
+        /// <summary>
+        /// Count of rounds per game.
+        /// </summary>
+        public const int ROUNDS_IN_GAME = 3;
 
         /// <summary>
         /// Flag of additional rule which only allows to expand tunnel.
@@ -30,20 +35,24 @@ namespace SaboteurFoundation
         /// <summary>
         /// Number of round.
         /// </summary>
-        public int Round { get; }
+        public int Round { get; private set; }
         /// <summary>
         /// Set of players which are participating in game.
         /// </summary>
-        public HashSet<Player> Players { get; }
+        public HashSet<Player> Players { get; private set; }
         /// <summary>
         /// Reference to current player.
         /// </summary>
         public Player CurrentPlayer => _playerEnumerator.Current;
+        /// <summary>
+        /// Flag that indicates the game has ended.
+        /// </summary>
+        public bool IsGameEnded { get; private set; }
 
         /// <summary>
         /// Gold cards.
         /// </summary>
-        internal int[] _goldHeap;
+        internal List<int> _goldHeap;
         /// <summary>
         /// Deck of gamecards.
         /// </summary>
@@ -51,7 +60,7 @@ namespace SaboteurFoundation
         /// <summary>
         /// Gamefield instance.
         /// </summary>
-        internal GameField _Field { get; }
+        internal GameField _field;
         /// <summary>
         /// Local random engine.
         /// </summary>
@@ -60,6 +69,10 @@ namespace SaboteurFoundation
         /// Enumerator of Players' HashSet.
         /// </summary>
         private IEnumerator<Player> _playerEnumerator;
+        /// <summary>
+        /// Count of skipped turns in round while deck is empty.
+        /// </summary>
+        private int _skipedTurnsInLine;
 
         /// <summary>
         /// Initializes game with zero-state.
@@ -74,31 +87,44 @@ namespace SaboteurFoundation
         private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, HashSet<string> playersNames, Random rnd)
         {
             _rnd = rnd;
-            var playersRoles = _GenerateRoles(playersNames.Count, _rnd);
-            _deck = new Stack<Card>(_GenerateDeck(_rnd));
-            _goldHeap = new int[28]
+            _goldHeap = new List<int>(28)
             {
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                 2, 2, 2, 2, 2, 2, 2, 2,
                 3, 3, 3, 3,
             };
-            var cardsInHand = _CardsInHandByPlayersCount(playersNames.Count);
-
+            Round = 1;
+            IsGameEnded = false;
             WithoutDeadlocks = withoutDeadlocks;
             SkipLoosers = skipLoosers;
-            var temp = playersNames.Zip(playersRoles, (name, role) => (name, role)).Select(pair => {
-                var result = new Player(pair.name, pair.role, _deck.Take(cardsInHand).ToArray());
-                _deck = new Stack<Card>(_deck.Skip(cardsInHand));
-                return result;
-            }).ToArray();
-            var lastPlayer = temp.Last();
-            Players = temp.ToHashSet();
+            Players = playersNames.Select(name => new Player(name, GameRole.GOOD, new Card[] { })).ToHashSet();
+
+            _PrepareRound();
+        }
+
+        /// <summary>
+        /// Prepares state of game to new round.
+        /// </summary>
+        private void _PrepareRound()
+        {
+            var playersRoles = _GenerateRoles(Players.Count, _rnd);
+            var cardsInHand = _CardsInHandByPlayersCount(Players.Count);
+
+            var lastPlayer = Players.Last();
             _playerEnumerator = Players.GetEnumerator();
             while (lastPlayer != _playerEnumerator.Current) _playerEnumerator.MoveNext();
-            Round = 1;
 
+            _deck = new Stack<Card>(_GenerateDeck(_rnd));
+            foreach (var p in Players)
+            {
+                p.Hand.Clear();
+                p.Hand.AddRange(_deck.Take(cardsInHand));
+                _deck = new Stack<Card>(_deck.Skip(cardsInHand));
+            }
+
+            _skipedTurnsInLine = 0;
             var endVariants = Enum.GetValues(typeof(EndVariant)).Cast<EndVariant>();
-            _Field = new GameField(endVariants.ElementAt(_rnd.Next(endVariants.Count())));
+            _field = new GameField(endVariants.ElementAt(_rnd.Next(endVariants.Count())));
         }
 
         /// <summary>
@@ -116,9 +142,77 @@ namespace SaboteurFoundation
             return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames.ToHashSet(), rnd ?? new Random());
         }
 
-        public Player ExecuteTurn()
+        /// <summary>
+        /// Performs an action by current player.
+        /// </summary>
+        /// <param name="action">Action to exectue in this turn.</param>
+        /// <returns>Result of turn.</returns>
+        public TurnResult ExecuteTurn(TurnAction action)
         {
-            return _NextPlayer();
+            if (IsGameEnded)
+                return new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
+
+            TurnResult result;
+            switch (action)
+            {
+                case SkipAction sa:
+                    var index = CurrentPlayer.Hand.FindIndex(x => x.Equals(sa.CardToAct));
+                    if (index == -1) throw new ArgumentOutOfRangeException("There is no such card in hand of current player.");
+                    CurrentPlayer.Hand.RemoveAt(index);
+                    if (_deck.Count == 0) _skipedTurnsInLine++;
+                    else CurrentPlayer.Hand.Add(_deck.Pop());
+
+                    if (_skipedTurnsInLine == Players.Count)
+                    {
+                        if (Round != ROUNDS_IN_GAME)
+                        {
+                            Round++;
+                            _PrepareRound();
+                            foreach (var p in Players) p.Gold = _popGoldHeap();
+                            result = new NewRoundResult(CurrentPlayer);
+                        }
+                        else
+                        {
+                            IsGameEnded = true;
+                            result = new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
+                        }
+                    }    
+                    else
+                    {
+                        result = new NewTurnResult(_NextPlayer());
+                    }  
+                    break;
+                default:
+                    result = null;
+                    break;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Randomly pop the _goldHeap.
+        /// </summary>
+        /// <returns>Some golden nuggets.</returns>
+        private int _popGoldHeap()
+        {
+            var sumsByCount = _goldHeap.GroupBy(x => x).Select(groups => (groups.Key, groups.Sum(), 0d, 0d)).ToArray();
+
+            var previous = 0d;
+            for (var i = 0; i < sumsByCount.Length; i++)
+            {
+                var (nuggets, count, start, end) = sumsByCount[i];
+                var result = Convert.ToDouble(count) / _goldHeap.Count + previous;
+                sumsByCount[i] = (nuggets, count, previous, result);
+                previous = result;
+            }
+            var lastEnd = sumsByCount[sumsByCount.Length - 1];
+            sumsByCount[sumsByCount.Length - 1] = (lastEnd.Item1, lastEnd.Item2, lastEnd.Item3, 1d);
+
+            var sample = _rnd.NextDouble();
+            var (key, _, _ ,_) = sumsByCount.First(quartet => quartet.Item3 <= sample && sample < quartet.Item4);
+            _goldHeap.Remove(key);
+            return key;
         }
 
         /// <summary>

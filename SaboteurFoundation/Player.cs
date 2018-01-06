@@ -6,8 +6,8 @@ namespace SaboteurFoundation
     public class Player
     {
         public string Name { get; }
-        public int Gold { get; }
-        public GameRole Role { get; }
+        public int Gold { get; internal set; }
+        public GameRole Role { get; internal set; }
         public List<Card> Hand { get; }
         public HashSet<Effect> Debufs { get; }
         public Dictionary<EndVariant, TargetStatus> EndsStatuses { get; }
@@ -45,6 +45,14 @@ namespace SaboteurFoundation
         public static bool operator !=(Player p1, Player p2)
         {
             return !p1.Equals(p2);
+        }
+
+        public void ClearEndStatuses()
+        {
+            foreach (EndVariant endVariant in Enum.GetValues(typeof(EndVariant)))
+            {
+                EndsStatuses[endVariant] = TargetStatus.UNKNOW;
+            }
         }
     }
 }
