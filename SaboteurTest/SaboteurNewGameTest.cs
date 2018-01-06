@@ -113,5 +113,12 @@ namespace SaboteurTest
             Assert.AreEqual(3, healAlternativeCount, "HealAlternative count is failed.");
             Assert.AreEqual(9, debufCount, "Debuf count is failed.");
         }
+
+        [TestMethod]
+        public void CheckHands()
+        {
+            Assert.AreEqual(49, _game._deck.Count, "Rest size of deck is failed.");
+            Assert.AreEqual(18, _game.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed.");
+        }
     }
 }
