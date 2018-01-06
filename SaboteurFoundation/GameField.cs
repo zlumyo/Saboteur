@@ -6,8 +6,8 @@ namespace SaboteurFoundation
 {
     public class GameField
     {
-        GameCell Start { get; }
-        Dictionary<EndVariant, GameCell> Ends { get; }
+        public GameCell Start { get; }
+        public Dictionary<EndVariant, GameCell> Ends { get; }
 
         public GameField(EndVariant endGold)
         {
