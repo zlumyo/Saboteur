@@ -10,7 +10,8 @@ namespace SaboteurTest
     public class SaboteurNewGameTest
     {
         private static readonly string[] _minPlayers = { "player1", "player2", "player3" };
-        private static readonly string[] _maxPlayers = { "player4", "player5", "player6",
+        private static readonly string[] _maxPlayers = { "player1", "player2", "player3",
+                                                         "player4", "player5", "player6",
                                                          "player7", "player8", "player9",
                                                          "player10" };
         private const string _tooLessPlayers = "player1,player2";
@@ -117,8 +118,16 @@ namespace SaboteurTest
         [TestMethod]
         public void CheckHands()
         {
-            Assert.AreEqual(49, _game._deck.Count, "Rest size of deck is failed.");
-            Assert.AreEqual(18, _game.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed.");
+            Assert.AreEqual(49, _game._deck.Count, "Rest size of deck is failed (6 cards in hand).");
+            Assert.AreEqual(18, _game.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (6 cards in hand).");
+
+            var middle = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, _maxPlayers.Take(6).ToArray());
+            Assert.AreEqual(37, middle._deck.Count, "Rest size of deck is failed (5 cards in hand).");
+            Assert.AreEqual(30, middle.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (5 cards in hand).");
+
+            var high = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, _maxPlayers.Take(8).ToArray());
+            Assert.AreEqual(35, high._deck.Count, "Rest size of deck is failed (4 cards in hand).");
+            Assert.AreEqual(32, high.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (4 cards in hand).");
         }
     }
 }
