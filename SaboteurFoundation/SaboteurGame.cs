@@ -90,7 +90,7 @@ namespace SaboteurFoundation
                 var result = new Player(pair.name, pair.role, _deck.Take(cardsInHand).ToArray());
                 _deck = new Stack<Card>(_deck.Skip(cardsInHand));
                 return result;
-            });
+            }).ToArray();
             var lastPlayer = temp.Last();
             Players = temp.ToHashSet();
             _playerEnumerator = Players.GetEnumerator();
