@@ -23,6 +23,11 @@ namespace SaboteurFoundation.Cards
             return new TunnelCard(set, isDeadLock);
         }
 
+        public override bool Equals(Card other)
+        {
+            return other is TunnelCard tc && this.IsDeadlock == tc.IsDeadlock && this.Outs.SetEquals(tc.Outs);
+        }
+
         public HashSet<ConnectorType> Outs { get; }
         public bool IsDeadlock { get; }
     }

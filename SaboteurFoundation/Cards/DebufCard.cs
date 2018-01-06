@@ -12,6 +12,11 @@
             return new DebufCard(effect);
         }
 
+        public override bool Equals(Card other)
+        {
+            return other is DebufCard dc && this.Debuf == dc.Debuf;
+        }
+
         Effect Debuf { get; }
     }
 }

@@ -17,6 +17,13 @@ namespace SaboteurFoundation.Cards
             return new HealAlternativeCard(effect1, effect2);
         }
 
+        public override bool Equals(Card other)
+        {
+            return other is HealAlternativeCard hac &&
+                ((this.HealAlternative1 == hac.HealAlternative1 && this.HealAlternative2 == hac.HealAlternative2) ||
+                (this.HealAlternative1 == hac.HealAlternative2 && this.HealAlternative2 == hac.HealAlternative1));
+        }
+
         Effect HealAlternative1 { get; }
         Effect HealAlternative2 { get; }
     }
