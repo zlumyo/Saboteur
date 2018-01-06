@@ -21,7 +21,7 @@ namespace SaboteurFoundation
             Debufs = new HashSet<Effect>();
 
             EndsStatuses = new Dictionary<EndVariant, TargetStatus>(3);
-            foreach (EndVariant endVariant in Enum.GetValues(typeof(ConnectorType)))
+            foreach (EndVariant endVariant in Enum.GetValues(typeof(EndVariant)))
             {
                 EndsStatuses.Add(endVariant, TargetStatus.UNKNOW);
             }
