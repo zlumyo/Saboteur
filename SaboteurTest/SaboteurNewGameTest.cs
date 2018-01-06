@@ -129,5 +129,12 @@ namespace SaboteurTest
             Assert.AreEqual(35, high._deck.Count, "Rest size of deck is failed (4 cards in hand).");
             Assert.AreEqual(32, high.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (4 cards in hand).");
         }
+
+        [TestMethod]
+        public void CheckField()
+        {
+            Assert.IsTrue(_game._Field.Start.Outs.Count == 4 && _game._Field.Start.Type == CellType.START, "Start cell is wrong.");
+            Assert.IsTrue(_game._Field.Ends.Count == 3 && _game._Field.Ends.Count(pair => pair.Value.Type == CellType.GOLD) == 1, "End cells are wrong.");
+        }
     }
 }
