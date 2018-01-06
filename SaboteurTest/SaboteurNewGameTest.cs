@@ -136,5 +136,11 @@ namespace SaboteurTest
             Assert.IsTrue(_game._Field.Start.Outs.Count == 4 && _game._Field.Start.Type == CellType.START, "Start cell is wrong.");
             Assert.IsTrue(_game._Field.Ends.Count == 3 && _game._Field.Ends.Count(pair => pair.Value.Type == CellType.GOLD) == 1, "End cells are wrong.");
         }
+
+        [TestMethod]
+        public void CheckPlayers()
+        {
+            Assert.IsTrue(_game.Players.All(p => p.EndsStatuses.All(s => s.Value == TargetStatus.UNKNOW) && p.Gold == 0 && p.Debufs.Count == 0), "Players' state is wrong.");
+        }
     }
 }
