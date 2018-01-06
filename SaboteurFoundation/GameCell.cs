@@ -5,8 +5,8 @@ namespace SaboteurFoundation
 {
     public class GameCell
     {
-        HashSet<Connector> Outs { get; }
-        CellType Type { get; }
+        public HashSet<Connector> Outs { get; }
+        public CellType Type { get; }
 
         public GameCell(CellType type, HashSet<Connector> outs)
         {
