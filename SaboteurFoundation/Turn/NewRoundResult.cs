@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SaboteurFoundation.Turn
 {
-    public class NewRoundResult
+    public class NewRoundResult : TurnResult
     {
         public Player FristPlayer { get; }
 

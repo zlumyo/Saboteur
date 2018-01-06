@@ -1,6 +1,6 @@
 ﻿namespace SaboteurFoundation.Turn
 {
-    public class NewTurnResult
+    public class NewTurnResult : TurnResult
     {
         public Player NextPlayer { get; }
 

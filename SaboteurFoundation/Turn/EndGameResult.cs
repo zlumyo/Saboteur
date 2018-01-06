@@ -4,13 +4,13 @@ using System.Text;
 
 namespace SaboteurFoundation.Turn
 {
-    public class EndGameResult
+    public class EndGameResult : TurnResult
     {
-        public Dictionary<Player, int> WinnersTable { get; }
+        public Player[] Winners { get; }
 
-        public EndGameResult(Dictionary<Player, int> table)
+        public EndGameResult(Player[] winners)
         {
-            WinnersTable = table;
+            Winners = winners;
         }
     }
 }
