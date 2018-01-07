@@ -24,7 +24,7 @@ namespace SaboteurFoundation.Cards
                 (this.HealAlternative1 == hac.HealAlternative2 && this.HealAlternative2 == hac.HealAlternative1));
         }
 
-        Effect HealAlternative1 { get; }
-        Effect HealAlternative2 { get; }
+        public Effect HealAlternative1 { get; }
+        public Effect HealAlternative2 { get; }
     }
 }
