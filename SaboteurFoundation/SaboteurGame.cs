@@ -151,12 +151,67 @@ namespace SaboteurFoundation
         {
             if (IsGameEnded)
                 return new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
+            _SwapCard(action.CardToAct);
 
             TurnResult result;
             switch (action)
             {
                 case SkipAction sa:
                     result = _ProcessSkipAction(sa);
+                    break;
+                case PlayInvestigateAction ia:
+                    if (CurrentPlayer.EndsStatuses[ia.Variant] == TargetStatus.UNKNOW)
+                    {
+                        CurrentPlayer.EndsStatuses[ia.Variant] = _field.Ends[ia.Variant].Type == CellType.GOLD ? TargetStatus.REAL : TargetStatus.FAKE;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("This variant has already investigated.");
+                    }
+                    result = new NewTurnResult(_NextPlayer());
+                    break;
+                case PlayDebufAction da:
+                    var playerToDebuf = Players.Single(x => x == da.PlayerToDebuf);
+                    var debufCard = da.CardToAct as DebufCard;
+                    if (!playerToDebuf.Debufs.Contains(debufCard.Debuf))
+                    {
+                        playerToDebuf.Debufs.Add(debufCard.Debuf);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("This player already has such debuf.");
+                    }
+                    result = new NewTurnResult(_NextPlayer());
+                    break;
+                case PlayBufAction da:
+                    var playerToBuf = Players.Single(x => x == da.PlayerToBuf);
+                    var healCard = da.CardToAct as HealCard;
+                    if (playerToBuf.Debufs.Contains(healCard.Heal))
+                    {
+                        playerToBuf.Debufs.Remove(healCard.Heal);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("This player doesn't have such debuf.");
+                    }
+                    result = new NewTurnResult(_NextPlayer());
+                    break;
+                case PlayBufAlternativeAction da:
+                    var playerToBufAlt = Players.Single(x => x == da.PlayerToBuf);
+                    var healAltCard = da.CardToAct as HealAlternativeCard;
+                    if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative1))
+                    {
+                        playerToBufAlt.Debufs.Remove(healAltCard.HealAlternative1);
+                    }
+                    else if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative2))
+                    {
+                        playerToBufAlt.Debufs.Remove(healAltCard.HealAlternative2);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("This player doesn't have such debufs.");
+                    }
+                    result = new NewTurnResult(_NextPlayer());
                     break;
                 default:
                     result = null;
@@ -166,6 +221,8 @@ namespace SaboteurFoundation
             return result;
         }
 
+
+
         /// <summary>
         /// Performs 'skip turn' in game.
         /// </summary>
@@ -173,12 +230,7 @@ namespace SaboteurFoundation
         /// <returns>Result of turn.</returns>
         private TurnResult _ProcessSkipAction(SkipAction sa)
         {
-            TurnResult result;
-            var index = CurrentPlayer.Hand.FindIndex(x => x.Equals(sa.CardToAct));
-            if (index == -1) throw new ArgumentOutOfRangeException("There is no such card in hand of current player.");
-            CurrentPlayer.Hand.RemoveAt(index);
-            if (_deck.Count == 0) _skipedTurnsInLine++;
-            else CurrentPlayer.Hand.Add(_deck.Pop());
+            TurnResult result;   
 
             if (_skipedTurnsInLine == Players.Count)
             {
@@ -201,6 +253,19 @@ namespace SaboteurFoundation
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Drops card from action and getting next from _deck.
+        /// </summary>
+        /// <param name="card">Card playing during turn.</param>
+        private void _SwapCard(Card card)
+        {
+            var index = CurrentPlayer.Hand.FindIndex(x => x.Equals(card));
+            if (index == -1) throw new ArgumentOutOfRangeException("There is no such card in hand of current player.");
+            CurrentPlayer.Hand.RemoveAt(index);
+            if (_deck.Count == 0) _skipedTurnsInLine++;
+            else CurrentPlayer.Hand.Add(_deck.Pop());
         }
 
         /// <summary>
