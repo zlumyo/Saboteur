@@ -1,4 +1,4 @@
-﻿namespace SaboteurFoundation
+﻿namespace SaboteurFoundation.Cards
 {
     public class DebufCard : AffectPlayerCard
     {
@@ -17,6 +17,6 @@
             return other is DebufCard dc && this.Debuf == dc.Debuf;
         }
 
-        Effect Debuf { get; }
+        public Effect Debuf { get; }
     }
 }
