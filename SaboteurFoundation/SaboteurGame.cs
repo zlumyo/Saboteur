@@ -156,35 +156,48 @@ namespace SaboteurFoundation
             switch (action)
             {
                 case SkipAction sa:
-                    var index = CurrentPlayer.Hand.FindIndex(x => x.Equals(sa.CardToAct));
-                    if (index == -1) throw new ArgumentOutOfRangeException("There is no such card in hand of current player.");
-                    CurrentPlayer.Hand.RemoveAt(index);
-                    if (_deck.Count == 0) _skipedTurnsInLine++;
-                    else CurrentPlayer.Hand.Add(_deck.Pop());
-
-                    if (_skipedTurnsInLine == Players.Count)
-                    {
-                        if (Round != ROUNDS_IN_GAME)
-                        {
-                            Round++;
-                            _PrepareRound();
-                            foreach (var p in Players) p.Gold = _popGoldHeap();
-                            result = new NewRoundResult(CurrentPlayer);
-                        }
-                        else
-                        {
-                            IsGameEnded = true;
-                            result = new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
-                        }
-                    }    
-                    else
-                    {
-                        result = new NewTurnResult(_NextPlayer());
-                    }  
+                    result = _ProcessSkipAction(sa);
                     break;
                 default:
                     result = null;
                     break;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Performs 'skip turn' in game.
+        /// </summary>
+        /// <param name="sa">Parameters of action.</param>
+        /// <returns>Result of turn.</returns>
+        private TurnResult _ProcessSkipAction(SkipAction sa)
+        {
+            TurnResult result;
+            var index = CurrentPlayer.Hand.FindIndex(x => x.Equals(sa.CardToAct));
+            if (index == -1) throw new ArgumentOutOfRangeException("There is no such card in hand of current player.");
+            CurrentPlayer.Hand.RemoveAt(index);
+            if (_deck.Count == 0) _skipedTurnsInLine++;
+            else CurrentPlayer.Hand.Add(_deck.Pop());
+
+            if (_skipedTurnsInLine == Players.Count)
+            {
+                if (Round != ROUNDS_IN_GAME)
+                {
+                    Round++;
+                    _PrepareRound();
+                    foreach (var p in Players) p.Gold = _popGoldHeap();
+                    result = new NewRoundResult(CurrentPlayer);
+                }
+                else
+                {
+                    IsGameEnded = true;
+                    result = new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
+                }
+            }
+            else
+            {
+                result = new NewTurnResult(_NextPlayer());
             }
 
             return result;
