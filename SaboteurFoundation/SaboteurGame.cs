@@ -192,16 +192,18 @@ namespace SaboteurFoundation
             if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative1))
             {
                 playerToBufAlt.Debufs.Remove(healAltCard.HealAlternative1);
+                result = new NewTurnResult(_NextPlayer());
             }
             else if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative2))
             {
                 playerToBufAlt.Debufs.Remove(healAltCard.HealAlternative2);
+                result = new NewTurnResult(_NextPlayer());
             }
             else
             {
-                throw new ArgumentException("This player doesn't have such debufs.");
+                result = new UnacceptableActionResult();
             }
-            result = new NewTurnResult(_NextPlayer());
+            
             return result;
         }
 
@@ -218,12 +220,12 @@ namespace SaboteurFoundation
             if (playerToBuf.Debufs.Contains(healCard.Heal))
             {
                 playerToBuf.Debufs.Remove(healCard.Heal);
+                result = new NewTurnResult(_NextPlayer());
             }
             else
             {
-                throw new ArgumentException("This player doesn't have such debuf.");
-            }
-            result = new NewTurnResult(_NextPlayer());
+                result = new UnacceptableActionResult();
+            }         
             return result;
         }
 
@@ -240,12 +242,12 @@ namespace SaboteurFoundation
             if (!playerToDebuf.Debufs.Contains(debufCard.Debuf))
             {
                 playerToDebuf.Debufs.Add(debufCard.Debuf);
+                result = new NewTurnResult(_NextPlayer());
             }
             else
             {
-                throw new ArgumentException("This player already has such debuf.");
-            }
-            result = new NewTurnResult(_NextPlayer());
+                result = new UnacceptableActionResult();
+            }           
             return result;
         }
 
@@ -260,12 +262,12 @@ namespace SaboteurFoundation
             if (CurrentPlayer.EndsStatuses[ia.Variant] == TargetStatus.UNKNOW)
             {
                 CurrentPlayer.EndsStatuses[ia.Variant] = _field.Ends[ia.Variant].Type == CellType.GOLD ? TargetStatus.REAL : TargetStatus.FAKE;
+                result = new NewTurnResult(_NextPlayer());
             }
             else
             {
-                throw new ArgumentException("This variant has already investigated.");
-            }
-            result = new NewTurnResult(_NextPlayer());
+                result = new UnacceptableActionResult();
+            }            
             return result;
         }
 
