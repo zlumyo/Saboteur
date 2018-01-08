@@ -160,58 +160,16 @@ namespace SaboteurFoundation
                     result = _ProcessSkipAction(sa);
                     break;
                 case PlayInvestigateAction ia:
-                    if (CurrentPlayer.EndsStatuses[ia.Variant] == TargetStatus.UNKNOW)
-                    {
-                        CurrentPlayer.EndsStatuses[ia.Variant] = _field.Ends[ia.Variant].Type == CellType.GOLD ? TargetStatus.REAL : TargetStatus.FAKE;
-                    }
-                    else
-                    {
-                        throw new ArgumentException("This variant has already investigated.");
-                    }
-                    result = new NewTurnResult(_NextPlayer());
+                    result = _ProcessPlayInvestigateAction(ia);
                     break;
                 case PlayDebufAction da:
-                    var playerToDebuf = Players.Single(x => x == da.PlayerToDebuf);
-                    var debufCard = da.CardToAct as DebufCard;
-                    if (!playerToDebuf.Debufs.Contains(debufCard.Debuf))
-                    {
-                        playerToDebuf.Debufs.Add(debufCard.Debuf);
-                    }
-                    else
-                    {
-                        throw new ArgumentException("This player already has such debuf.");
-                    }
-                    result = new NewTurnResult(_NextPlayer());
+                    result = _ProcessPlayDebufAction(da);
                     break;
-                case PlayBufAction da:
-                    var playerToBuf = Players.Single(x => x == da.PlayerToBuf);
-                    var healCard = da.CardToAct as HealCard;
-                    if (playerToBuf.Debufs.Contains(healCard.Heal))
-                    {
-                        playerToBuf.Debufs.Remove(healCard.Heal);
-                    }
-                    else
-                    {
-                        throw new ArgumentException("This player doesn't have such debuf.");
-                    }
-                    result = new NewTurnResult(_NextPlayer());
+                case PlayBufAction ba:
+                    result = _ProcessPlayBufAction(ba);
                     break;
-                case PlayBufAlternativeAction da:
-                    var playerToBufAlt = Players.Single(x => x == da.PlayerToBuf);
-                    var healAltCard = da.CardToAct as HealAlternativeCard;
-                    if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative1))
-                    {
-                        playerToBufAlt.Debufs.Remove(healAltCard.HealAlternative1);
-                    }
-                    else if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative2))
-                    {
-                        playerToBufAlt.Debufs.Remove(healAltCard.HealAlternative2);
-                    }
-                    else
-                    {
-                        throw new ArgumentException("This player doesn't have such debufs.");
-                    }
-                    result = new NewTurnResult(_NextPlayer());
+                case PlayBufAlternativeAction baa:
+                    result = _ProcessPlayBufAlternativeAction(baa);
                     break;
                 default:
                     result = null;
@@ -221,7 +179,95 @@ namespace SaboteurFoundation
             return result;
         }
 
+        /// <summary>
+        /// Performs 'play heal alternative card' in game.
+        /// </summary>
+        /// <param name="baa">Parameters of action.</param>
+        /// <returns>Result of turn.</returns>
+        private TurnResult _ProcessPlayBufAlternativeAction(PlayBufAlternativeAction baa)
+        {
+            TurnResult result;
+            var playerToBufAlt = Players.Single(x => x == baa.PlayerToBuf);
+            var healAltCard = baa.CardToAct as HealAlternativeCard;
+            if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative1))
+            {
+                playerToBufAlt.Debufs.Remove(healAltCard.HealAlternative1);
+            }
+            else if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative2))
+            {
+                playerToBufAlt.Debufs.Remove(healAltCard.HealAlternative2);
+            }
+            else
+            {
+                throw new ArgumentException("This player doesn't have such debufs.");
+            }
+            result = new NewTurnResult(_NextPlayer());
+            return result;
+        }
 
+        /// <summary>
+        /// Performs 'play heal card' in game.
+        /// </summary>
+        /// <param name="ba">Parameters of action.</param>
+        /// <returns>Result of turn.</returns>
+        private TurnResult _ProcessPlayBufAction(PlayBufAction ba)
+        {
+            TurnResult result;
+            var playerToBuf = Players.Single(x => x == ba.PlayerToBuf);
+            var healCard = ba.CardToAct as HealCard;
+            if (playerToBuf.Debufs.Contains(healCard.Heal))
+            {
+                playerToBuf.Debufs.Remove(healCard.Heal);
+            }
+            else
+            {
+                throw new ArgumentException("This player doesn't have such debuf.");
+            }
+            result = new NewTurnResult(_NextPlayer());
+            return result;
+        }
+
+        /// <summary>
+        /// Performs 'play debuf card' in game.
+        /// </summary>
+        /// <param name="da">Parameters of action.</param>
+        /// <returns>Result of turn.</returns>
+        private TurnResult _ProcessPlayDebufAction(PlayDebufAction da)
+        {
+            TurnResult result;
+            var playerToDebuf = Players.Single(x => x == da.PlayerToDebuf);
+            var debufCard = da.CardToAct as DebufCard;
+            if (!playerToDebuf.Debufs.Contains(debufCard.Debuf))
+            {
+                playerToDebuf.Debufs.Add(debufCard.Debuf);
+            }
+            else
+            {
+                throw new ArgumentException("This player already has such debuf.");
+            }
+            result = new NewTurnResult(_NextPlayer());
+            return result;
+        }
+
+        /// <summary>
+        /// Performs 'play investigate card' in game.
+        /// </summary>
+        /// <param name="ia">Parameters of action.</param>
+        /// <returns>Result of turn.</returns>
+        private TurnResult _ProcessPlayInvestigateAction(PlayInvestigateAction ia)
+        {
+            TurnResult result;
+            if (CurrentPlayer.EndsStatuses[ia.Variant] == TargetStatus.UNKNOW)
+            {
+                CurrentPlayer.EndsStatuses[ia.Variant] = _field.Ends[ia.Variant].Type == CellType.GOLD ? TargetStatus.REAL : TargetStatus.FAKE;
+            }
+            else
+            {
+                throw new ArgumentException("This variant has already investigated.");
+            }
+            result = new NewTurnResult(_NextPlayer());
+            return result;
+        }
 
         /// <summary>
         /// Performs 'skip turn' in game.
