@@ -2,8 +2,8 @@
 {
     public class Connector
     {
-        ConnectorType Type { get; }
-        GameCell Next { get; set; }
+        public ConnectorType Type { get; }
+        public GameCell Next { get; set; }
 
         public Connector(ConnectorType type)
         {
