@@ -2,7 +2,7 @@
 {
     public class HealCard : AffectPlayerCard
     {
-        protected HealCard(Effect effect)
+        private HealCard(Effect effect)
         {
             Heal = effect;
         }
