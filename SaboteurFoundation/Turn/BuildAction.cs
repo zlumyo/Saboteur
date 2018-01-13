@@ -4,12 +4,14 @@ namespace SaboteurFoundation.Turn
 {
     public class BuildAction : TurnAction
     {
-        public GameCell NearCell { get; }
+        public int XNear { get; }
+        public int YNear { get; }
         public ConnectorType SideOfNearCard { get; }
 
-        public BuildAction(TunnelCard card, GameCell nearCell, ConnectorType sideOfNearCard) : base(card)
+        public BuildAction(TunnelCard card, int xNear, int yNear, ConnectorType sideOfNearCard) : base(card)
         {
-            NearCard = nearCell;
+            XNear = xNear;
+            YNear = yNear;
             SideOfNearCard = sideOfNearCard;
         }
     }
