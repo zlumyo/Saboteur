@@ -717,6 +717,7 @@ namespace SaboteurFoundation
             if (!_playerEnumerator.MoveNext())
             {
                 _playerEnumerator.Reset();
+                _playerEnumerator.MoveNext();
             }
 
             return CurrentPlayer;
