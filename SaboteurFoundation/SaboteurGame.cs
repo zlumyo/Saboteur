@@ -245,7 +245,7 @@ namespace SaboteurFoundation
             }
 
             // если новая карта не подходит к нужному коннектору, то такой ход недопустим
-            if (!_CheckConnectors(connector.Type, tunnelCard.Outs, out HashSet<ConnectorType> outs))
+            if (!_CheckConnectors(connector.Type, tunnelCard.Outs, xResult, yResult, out HashSet<ConnectorType> outs))
             {
                 return new UnacceptableActionResult();
             }
@@ -298,7 +298,7 @@ namespace SaboteurFoundation
             return new NewTurnResult(_NextPlayer()); // по умолчанию передаётся ход другому игроку
         }
 
-        private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, out HashSet<ConnectorType> realOuts)
+        private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, int x, int y, out HashSet<ConnectorType> realOuts)
         {
             // TODO проверить другие карты рядом с остальными коннекторами
 
@@ -308,12 +308,14 @@ namespace SaboteurFoundation
             if (outs.Contains(flippedType))
             {
                 realOuts = outs;
-                return true;
+                HashSet<(int, int)> watched = new HashSet<(int, int)>();
+                return CheckNeighbors(realOuts);
             }
             else if (flippedOuts.Contains(flippedType))
             {
                 realOuts = flippedOuts;
-                return true;
+                HashSet<(int, int)> watched = new HashSet<(int, int)>();
+                return CheckNeighbors(realOuts);
             }
             else
             {
@@ -341,6 +343,15 @@ namespace SaboteurFoundation
                     default:
                         return cType;
                 }
+            }
+
+            bool CheckNeighbors(HashSet<ConnectorType> cTypes)
+            {
+                HashSet<(int, int)> watched = new HashSet<(int, int)>();
+                return cTypes.Where(_out => _out != flippedType).All(_out => {
+                    var (cell, _, _) = _ScanField(_field.Start, 0, 0, x + Connector.ConnectorTypeToDeltaX(_out), y + Connector.ConnectorTypeToDeltaY(_out), watched);
+                    return cell.Outs.Count(cellOut => cellOut.Type == FlipConnectorType(_out)) == 1;
+                });
             }
         }
 
