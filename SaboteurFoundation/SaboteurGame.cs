@@ -277,7 +277,7 @@ namespace SaboteurFoundation
                         {
                             CurrentPlayer.Gold += _popGoldHeap();
                             _NextPlayer();
-                            if (CurrentPlayer.Role == GameRole.BAD)
+                            if (CurrentPlayer.Role == GameRole.BAD || (SkipLoosers && CurrentPlayer.Debufs.Count != 0))
                             {
                                 _NextPlayer();
                             }
