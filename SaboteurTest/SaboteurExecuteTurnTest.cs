@@ -13,9 +13,14 @@ namespace SaboteurTest
     {
         private static readonly string[] _minPlayers = { "player1", "player2", "player3" };
 
-        private readonly SaboteurGame _game;
+        private SaboteurGame _game;
 
         public SaboteurExecuteTurnTest()
+        {
+        }
+
+        [TestInitialize]
+        public void TestInit()
         {
             _game = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, _minPlayers);
         }
@@ -33,6 +38,24 @@ namespace SaboteurTest
             Assert.AreEqual(expectedDeckSize, _game._deck.Count, "New deck's size has failed.");
             Assert.AreEqual(6, currentPlayer.Hand.Count, "New hand's size has failed.");
             Assert.AreEqual(expectedCardCount, currentPlayer.Hand.Count(c => c.Equals(expectedCard)), "New card's count has failed.");
+        }
+
+        [TestMethod]
+        public void InvestigateFinishTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is InvestigateCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var currentPlayer = _game.CurrentPlayer;
+            var card = _game.CurrentPlayer.Hand.Find(c => c is InvestigateCard) as InvestigateCard;
+            var expectedCardCount = currentPlayer.Hand.Count(c => c.Equals(card)) - 1;
+
+            _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.CENTER));
+
+            Assert.AreNotEqual(TargetStatus.UNKNOW, currentPlayer.EndsStatuses[EndVariant.CENTER], "New end's status has failed.");
+            Assert.AreEqual(expectedCardCount, currentPlayer.Hand.Count(c => c.Equals(card)), "New card's count has failed.");
         }
     }
 }
