@@ -192,6 +192,18 @@ namespace SaboteurFoundation
         /// <returns>Result of turn.</returns>
         private TurnResult _ProcessCollapseAction(CollapseAction ca)
         {
+            // Вход в шахту разрушать нельзя.
+            if (ca.X == 0 && ca.Y == 0)
+            {
+                return new UnacceptableActionResult();
+            }
+
+            // Золотые жилы разрушать нельзя.
+            if (GameField.EndsCoordinates.Any(pair => pair.Value.Item1 == ca.X && pair.Value.Item2 == ca.Y))
+            {
+                return new UnacceptableActionResult();
+            }
+
             // пытаемся найти на поле карту с указанной координатой
             HashSet<(int, int)> watched = new HashSet<(int, int)>();
             var (result, xResult, yResult) = _ScanField(_field.Start, 0, 0, ca.X, ca.Y, watched);
