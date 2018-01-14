@@ -156,6 +156,9 @@ namespace SaboteurFoundation
             TurnResult result;
             switch (action)
             {
+                case BuildAction ba:
+                    result = _ProcessBuildAction(ba);
+                    break;
                 case SkipAction sa:
                     result = _ProcessSkipAction(sa);
                     break;
@@ -180,6 +183,159 @@ namespace SaboteurFoundation
         }
 
         /// <summary>
+        /// Performs 'build tunnel card' in game.
+        /// </summary>
+        /// <param name="ba">Parameters of action</param>
+        /// <returns>Result of turn.</returns>
+        private TurnResult _ProcessBuildAction(BuildAction ba)
+        {
+            if (CurrentPlayer.Debufs.Count != 0) // если у игнока есть дебафы, то строить ему нельзя
+            {
+                return new UnacceptableActionResult();
+            }
+
+            TunnelCard tunnelCard = ba.CardToAct as TunnelCard;
+            if (tunnelCard.IsDeadlock && WithoutDeadlocks) // если это игра без тупиков, то такой ход недопустим
+            {
+                return new UnacceptableActionResult();
+            }
+
+            // пытаемся найти на поле карту с указанной координатой
+            HashSet<(int, int)> watched = new HashSet<(int, int)>();
+            var (result, xResult, yResult) = _ScanField(_field.Start, 0, 0, ba.XNear, ba.YNear, watched);
+            if (result == null) // если таковой нет, то такой ход недопустим
+            {
+                return new UnacceptableActionResult();
+            }
+
+            // если у найденной карты нет коннектора в искомую сторону, то такой ход недопустим
+            if (result.Outs.Count(_out => _out.Type == ba.SideOfNearCard) == 0)
+            {
+                return new UnacceptableActionResult();
+            }
+
+            var connector = result.Outs.First(_out => _out.Type == ba.SideOfNearCard);
+            // если нужный коннектор уже соединён с другой картой, то такой ход недопустим
+            if (connector.Next != null)
+            {
+                return new UnacceptableActionResult();
+            }
+
+            // если новая карта не подходит к нужному коннектору, то такой ход недопустим
+            if (!_CheckConnectors(connector.Type, tunnelCard.Outs, out HashSet<ConnectorType> outs))
+            {
+                return new UnacceptableActionResult();
+            }
+
+            // теперь можно класть карту на поле
+            connector.Next = new GameCell(CellType.TUNNEL, outs.Select(cType => new Connector(cType)).ToHashSet());
+
+            // проверяем, достигли ли какой-нибудь финишной карты
+            if (_field.CheckFinishReached(connector.Next, xResult+Connector.ConnectorTypeToDeltaX(connector.Type), yResult+Connector.ConnectorTypeToDeltaY(connector.Type), out GameCell[] finishes))
+            {
+                // переворачиваем финишные карты для всех игроков
+                foreach (var finish in finishes)
+                {
+                    foreach (var player in Players)
+                    {
+                        var variant = GameField.EndsCoordinates.First((pair => pair.Value.Item1 == xResult && pair.Value.Item2 == yResult)).Key;
+                        player.EndsStatuses[variant] = finish.Type == CellType.FAKE ? TargetStatus.FAKE : TargetStatus.REAL;
+                    }
+                }                
+
+                // если одна из финишных карт - золотая, то заканчиваем раунд
+                if (finishes.Any(finish => finish.Type == CellType.GOLD))
+                {
+                    // если раунд был не последний, то начинаем новый
+                    if (Round != ROUNDS_IN_GAME)
+                    {
+                        // распределяем золото
+                        for (int i = 0; i < (Players.Count == 10 ? 9 : Players.Count); i++)
+                        {
+                            CurrentPlayer.Gold += _popGoldHeap();
+                            _NextPlayer();
+                            if (CurrentPlayer.Role == GameRole.BAD)
+                            {
+                                _NextPlayer();
+                            }
+                        }
+
+                        Round++; // увеличиваем счётчик раундов
+                        _PrepareRound(); // подготовливем ирговое поле к новому раунду
+                        return new NewRoundResult(CurrentPlayer);
+                    }
+                    else // иначе заканчиваем игру
+                    {
+                        IsGameEnded = true;
+                        return new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
+                    }
+                }
+            }
+
+            return new NewTurnResult(_NextPlayer()); // по умолчанию передаётся ход другому игроку
+        }
+
+        private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, out HashSet<ConnectorType> realOuts)
+        {
+            var flippedOuts = FlipOuts();
+            var flippedType = FlipConnectorType(type);
+
+            if (outs.Contains(flippedType))
+            {
+                realOuts = outs;
+                return true;
+            }
+            else if (flippedOuts.Contains(flippedType))
+            {
+                realOuts = flippedOuts;
+                return true;
+            }
+            else
+            {
+                realOuts = null;
+                return false;
+            }
+
+            HashSet<ConnectorType> FlipOuts()
+            {
+                return outs.Select(FlipConnectorType).ToHashSet();
+            }
+
+            ConnectorType FlipConnectorType(ConnectorType cType)
+            {
+                switch (type)
+                {
+                    case ConnectorType.DOWN:
+                        return ConnectorType.UP;
+                    case ConnectorType.LEFT:
+                        return ConnectorType.RIGHT;
+                    case ConnectorType.RIGHT:
+                        return ConnectorType.LEFT;
+                    case ConnectorType.UP:
+                        return ConnectorType.DOWN;
+                    default:
+                        return cType;
+                }
+            }
+        }
+
+        private (GameCell, int, int) _ScanField(GameCell current, int xCurrent, int yCurrent, int xTarget, int yTarget, HashSet<(int, int)> watched)
+        {
+            if (xCurrent == xTarget && yCurrent == yTarget)
+            {
+                return (current, xCurrent, yCurrent);
+            }
+            else
+            {
+                watched.Add((xCurrent, yCurrent));
+                var temp = current.Outs.Where(_out => _out.Next != null && !watched.Contains((xTarget+ Connector.ConnectorTypeToDeltaX(_out.Type), yTarget+ Connector.ConnectorTypeToDeltaY(_out.Type))))
+                    .Select(filtered => _ScanField(filtered.Next, xTarget+ Connector.ConnectorTypeToDeltaX(filtered.Type), yTarget+ Connector.ConnectorTypeToDeltaY(filtered.Type), xTarget, yTarget, watched))
+                    .Where(result => result.Item1 != null).ToArray();
+                return temp.Length == 0 ? (null, 0, 0) : temp[0];
+            }
+        }
+
+        /// <summary>
         /// Performs 'play heal alternative card' in game.
         /// </summary>
         /// <param name="baa">Parameters of action.</param>
@@ -187,7 +343,7 @@ namespace SaboteurFoundation
         private TurnResult _ProcessPlayBufAlternativeAction(PlayBufAlternativeAction baa)
         {
             TurnResult result;
-            var playerToBufAlt = Players.Single(x => x == baa.PlayerToBuf);
+            var playerToBufAlt = Players.First(x => x == baa.PlayerToBuf);
             var healAltCard = baa.CardToAct as HealAlternativeCard;
             if (playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative1))
             {
@@ -215,7 +371,7 @@ namespace SaboteurFoundation
         private TurnResult _ProcessPlayBufAction(PlayBufAction ba)
         {
             TurnResult result;
-            var playerToBuf = Players.Single(x => x == ba.PlayerToBuf);
+            var playerToBuf = Players.First(x => x == ba.PlayerToBuf);
             var healCard = ba.CardToAct as HealCard;
             if (playerToBuf.Debufs.Contains(healCard.Heal))
             {
@@ -237,7 +393,7 @@ namespace SaboteurFoundation
         private TurnResult _ProcessPlayDebufAction(PlayDebufAction da)
         {
             TurnResult result;
-            var playerToDebuf = Players.Single(x => x == da.PlayerToDebuf);
+            var playerToDebuf = Players.First(x => x == da.PlayerToDebuf);
             var debufCard = da.CardToAct as DebufCard;
             if (!playerToDebuf.Debufs.Contains(debufCard.Debuf))
             {
@@ -284,9 +440,37 @@ namespace SaboteurFoundation
             {
                 if (Round != ROUNDS_IN_GAME)
                 {
+                    var badBoys = Players.Where(p => p.Role == GameRole.BAD).ToArray();
+                    switch (badBoys.Length)
+                    {
+                        case 1:
+                            foreach (var p in badBoys)
+                            {
+                                _popGoldHeapWhile(4);
+                                p.Gold += 4;
+                            }
+                            break;
+                        case 2:
+                        case 3:
+                            foreach (var p in badBoys)
+                            {
+                                _popGoldHeapWhile(3);
+                                p.Gold += 3;
+                            }
+                            break;
+                        case 4:
+                            foreach (var p in badBoys)
+                            {
+                                _popGoldHeapWhile(2);
+                                p.Gold += 2;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+
                     Round++;
-                    _PrepareRound();
-                    foreach (var p in Players) p.Gold = _popGoldHeap();
+                    _PrepareRound();                   
                     result = new NewRoundResult(CurrentPlayer);
                 }
                 else
@@ -339,6 +523,20 @@ namespace SaboteurFoundation
             var (key, _, _ ,_) = sumsByCount.First(quartet => quartet.Item3 <= sample && sample < quartet.Item4);
             _goldHeap.Remove(key);
             return key;
+        }
+
+        private void _popGoldHeapWhile(int value)
+        {
+            var init = 0;
+            List<int> toRemove = new List<int>();
+            foreach (int i in _goldHeap)
+            {
+                if (init + i > value) continue;
+                toRemove.Add(i);
+                init += i;              
+                if (init == value) break;
+            }
+            foreach (int i in toRemove) _goldHeap.Remove(i);
         }
 
         /// <summary>

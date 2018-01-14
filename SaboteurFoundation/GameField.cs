@@ -9,6 +9,13 @@ namespace SaboteurFoundation
         public GameCell Start { get; }
         public Dictionary<EndVariant, GameCell> Ends { get; }
 
+        public static Dictionary<EndVariant, (int, int)> EndsCoordinates { get; } = new Dictionary<EndVariant, (int, int)>
+        {
+            { EndVariant.LEFT, (-2, 8) },
+            { EndVariant.CENTER, (0, 8) },
+            { EndVariant.RIGHT, (2, 8) }
+        };
+
         public GameField(EndVariant endGold)
         {
             var allConnectorTypes = Enum.GetValues(typeof(ConnectorType)).Cast<ConnectorType>();
@@ -37,6 +44,13 @@ namespace SaboteurFoundation
                     )
                 }
             };
+        }
+
+        public bool CheckFinishReached(GameCell cell, int xCell, int yCell, out GameCell[] finishes)
+        {
+            finishes = cell.Outs.Select(_out => (xCell + Connector.ConnectorTypeToDeltaX(_out.Type), yCell + Connector.ConnectorTypeToDeltaY(_out.Type))).Where(pair => EndsCoordinates.ContainsValue(pair))
+                .Select(pair => Ends[EndsCoordinates.First(p => p.Value.Item1 == pair.Item1 && p.Value.Item2 == pair.Item2).Key]).ToArray();
+            return finishes.Length != 0;
         }
     }
 }

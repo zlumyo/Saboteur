@@ -19,5 +19,39 @@
         {
             return obj is Connector c && c.Type == Type;
         }
+
+        public static int ConnectorTypeToDeltaX(ConnectorType type)
+        {
+            switch (type)
+            {
+                case ConnectorType.DOWN:
+                    return 0;
+                case ConnectorType.UP:
+                    return 0;
+                case ConnectorType.LEFT:
+                    return -1;
+                case ConnectorType.RIGHT:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
+
+        public static int ConnectorTypeToDeltaY(ConnectorType type)
+        {
+            switch (type)
+            {
+                case ConnectorType.DOWN:
+                    return -1;
+                case ConnectorType.UP:
+                    return 1;
+                case ConnectorType.LEFT:
+                    return 0;
+                case ConnectorType.RIGHT:
+                    return 0;
+                default:
+                    return 0;
+            }
+        }
     }
 }
