@@ -2,8 +2,6 @@
 using SaboteurFoundation;
 using SaboteurFoundation.Cards;
 using SaboteurFoundation.Turn;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SaboteurTest
@@ -55,6 +53,24 @@ namespace SaboteurTest
             _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.CENTER));
 
             Assert.AreNotEqual(TargetStatus.UNKNOW, currentPlayer.EndsStatuses[EndVariant.CENTER], "New end's status has failed.");
+            Assert.AreEqual(expectedCardCount, currentPlayer.Hand.Count(c => c.Equals(card)), "New card's count has failed.");
+        }
+
+        [TestMethod]
+        public void DebufPlayerTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is DebufCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var currentPlayer = _game.CurrentPlayer;
+            var card = _game.CurrentPlayer.Hand.Find(c => c is DebufCard) as DebufCard;
+            var expectedCardCount = currentPlayer.Hand.Count(c => c.Equals(card)) - 1;
+
+            _game.ExecuteTurn(new PlayDebufAction(card, currentPlayer));
+
+            Assert.IsTrue(currentPlayer.Debufs.Contains(card.Debuf) && currentPlayer.Debufs.Count == 1, "Debufs' state has failed.");
             Assert.AreEqual(expectedCardCount, currentPlayer.Hand.Count(c => c.Equals(card)), "New card's count has failed.");
         }
     }
