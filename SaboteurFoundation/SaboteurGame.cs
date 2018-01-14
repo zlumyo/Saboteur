@@ -312,8 +312,6 @@ namespace SaboteurFoundation
 
         private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, int x, int y, out HashSet<ConnectorType> realOuts)
         {
-            // TODO проверить другие карты рядом с остальными коннекторами
-
             var flippedOuts = FlipOuts();
             var flippedType = FlipConnectorType(type);
 
