@@ -101,5 +101,32 @@ namespace SaboteurTest
             Assert.IsTrue(player1.Debufs.Count == 0, "Debufs' state has failed.");
             Assert.AreEqual(expectedCardCount, player2.Hand.Count(c => c.Equals(healCard)), "New card's count has failed.");
         }
+
+        [TestMethod]
+        public void AlternativeHealPlayerTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is DebufCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var player1 = _game.CurrentPlayer;
+            var debufCard = player1.Hand.Find(c => c is DebufCard) as DebufCard;
+            _game.ExecuteTurn(new PlayDebufAction(debufCard, player1));
+
+            while (_game.CurrentPlayer.Hand.Count(c => c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var player2 = _game.CurrentPlayer;
+            var healCard = player2.Hand.Find(c => c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) as HealAlternativeCard;
+            var expectedCardCount = player2.Hand.Count(c => c.Equals(healCard)) - 1;
+
+            _game.ExecuteTurn(new PlayBufAlternativeAction(healCard, player1));
+
+            Assert.IsTrue(player1.Debufs.Count == 0, "Debufs' state has failed.");
+            Assert.AreEqual(expectedCardCount, player2.Hand.Count(c => c.Equals(healCard)), "New card's count has failed.");
+        }
     }
 }
