@@ -174,12 +174,35 @@ namespace SaboteurFoundation
                 case PlayBufAlternativeAction baa:
                     result = _ProcessPlayBufAlternativeAction(baa);
                     break;
+                case CollapseAction ca:
+                    result = _ProcessCollapseAction(ca);
+                    break;
                 default:
                     result = null;
                     break;
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Performs 'collapse tunnel card' in game.
+        /// </summary>
+        /// <param name="ca">Parameters of action</param>
+        /// <returns>Result of turn.</returns>
+        private TurnResult _ProcessCollapseAction(CollapseAction ca)
+        {
+            // пытаемся найти на поле карту с указанной координатой
+            HashSet<(int, int)> watched = new HashSet<(int, int)>();
+            var (result, xResult, yResult) = _ScanField(_field.Start, 0, 0, ca.X, ca.Y, watched);
+            if (result == null) // если таковой нет, то такой ход недопустим
+            {
+                return new UnacceptableActionResult();
+            }
+
+            result.HasCollapsed = true;
+
+            return new NewTurnResult(_NextPlayer());
         }
 
         /// <summary>
@@ -216,7 +239,7 @@ namespace SaboteurFoundation
 
             var connector = result.Outs.First(_out => _out.Type == ba.SideOfNearCard);
             // если нужный коннектор уже соединён с другой картой, то такой ход недопустим
-            if (connector.Next != null)
+            if (connector.Next != null && !connector.Next.HasCollapsed)
             {
                 return new UnacceptableActionResult();
             }
@@ -277,6 +300,8 @@ namespace SaboteurFoundation
 
         private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, out HashSet<ConnectorType> realOuts)
         {
+            // TODO проверить другие карты рядом с остальными коннекторами
+
             var flippedOuts = FlipOuts();
             var flippedType = FlipConnectorType(type);
 
@@ -321,6 +346,8 @@ namespace SaboteurFoundation
 
         private (GameCell, int, int) _ScanField(GameCell current, int xCurrent, int yCurrent, int xTarget, int yTarget, HashSet<(int, int)> watched)
         {
+            if (current.HasCollapsed) return (null, 0, 0);
+
             if (xCurrent == xTarget && yCurrent == yTarget)
             {
                 return (current, xCurrent, yCurrent);
