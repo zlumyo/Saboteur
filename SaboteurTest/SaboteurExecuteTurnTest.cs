@@ -131,7 +131,7 @@ namespace SaboteurTest
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
 
-            var card = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard) as TunnelCard;
+            var card = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.LEFT)) as TunnelCard;
 
             _game.ExecuteTurn(new BuildAction(card, 0, 0, ConnectorType.RIGHT));
 
