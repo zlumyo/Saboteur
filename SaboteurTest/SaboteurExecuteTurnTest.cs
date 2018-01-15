@@ -217,10 +217,50 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
-        private void BuildTunnelAt(int x, int y, ConnectorType side)
+        [TestMethod]
+        public void CollapseExitTest()
+        {
+            var direction = _game.Field.Ends.First(end => end.Value.Type == CellType.FAKE).Key;
+            int xBase;
+            if (direction == EndVariant.LEFT)
+            {
+                BuildTunnelAt(0, 0, ConnectorType.LEFT, withOppositeSide: true);
+                BuildTunnelAt(-1, 0, ConnectorType.LEFT);
+                xBase = -2;
+            }
+            else if (direction == EndVariant.RIGHT)
+            {
+                BuildTunnelAt(0, 0, ConnectorType.LEFT, withOppositeSide: true);
+                BuildTunnelAt(-1, 0, ConnectorType.LEFT);
+                xBase = 2;
+            }
+            else
+            {
+                xBase = 0;
+            }
+
+            var yBase = 0;
+            while (yBase != 8)
+            {
+                BuildTunnelAt(xBase, yBase, ConnectorType.UP, withOppositeSide: true);
+                yBase++;
+            }        
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+            
+            var collapseCard = _game.CurrentPlayer.Hand.Find(c => c is CollapseCard) as CollapseCard;
+            var turnResult = _game.ExecuteTurn(new CollapseAction(collapseCard, xBase, yBase));
+            
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
+        
+        private void BuildTunnelAt(int x, int y, ConnectorType side, bool withOppositeSide = false)
         {
             var flippedSide = Connector.FlipConnectorType(side);
-            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(flippedSide)) == 0)
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(flippedSide) && (!withOppositeSide || tc.Outs.Contains(side))) == 0)
             {
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
