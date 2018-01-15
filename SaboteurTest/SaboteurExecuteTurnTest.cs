@@ -139,6 +139,8 @@ namespace SaboteurTest
 
             var rightConnectorOfStart = _game._field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
             Assert.IsNotNull(rightConnectorOfStart.Next, "Field's state has failed.");
+            var leftConnectorOfNext = rightConnectorOfStart.Next.Outs.First(c => c.Type == ConnectorType.LEFT);
+            Assert.IsNotNull(leftConnectorOfNext.Next, "Double link is missed.");
         }
 
         [TestMethod]
