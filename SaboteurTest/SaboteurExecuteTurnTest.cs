@@ -16,7 +16,7 @@ namespace SaboteurTest
         [TestInitialize]
         public void TestInit()
         {
-            _game = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: MinPlayers);
+            _game = SaboteurGame.NewGame(false, false, MinPlayers);
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace SaboteurTest
 
             _game.ExecuteTurn(new PlayDebufAction(card, currentPlayer));
 
-            Assert.IsTrue(card != null && (currentPlayer.Debufs.Contains(card.Debuf) && currentPlayer.Debufs.Count == 1), "Debufs' state has failed.");
+            Assert.IsTrue(card != null && currentPlayer.Debufs.Contains(card.Debuf) && currentPlayer.Debufs.Count == 1, "Debufs' state has failed.");
         }
 
 
@@ -83,13 +83,13 @@ namespace SaboteurTest
             var debufCard = player1.Hand.Find(c => c is DebufCard) as DebufCard;
             _game.ExecuteTurn(new PlayDebufAction(debufCard, player1));
 
-            while (_game.CurrentPlayer.Hand.Count(c => debufCard != null && (c is HealCard hc && hc.Heal == debufCard.Debuf)) == 0)
+            while (_game.CurrentPlayer.Hand.Count(c => debufCard != null && c is HealCard hc && hc.Heal == debufCard.Debuf) == 0)
             {
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
 
             var player2 = _game.CurrentPlayer;
-            var healCard = player2.Hand.Find(c => debufCard != null && (c is HealCard hc && hc.Heal == debufCard.Debuf)) as HealCard;
+            var healCard = player2.Hand.Find(c => debufCard != null && c is HealCard hc && hc.Heal == debufCard.Debuf) as HealCard;
 
             _game.ExecuteTurn(new PlayBufAction(healCard, player1));
 
@@ -108,15 +108,13 @@ namespace SaboteurTest
             var debufCard = player1.Hand.Find(c => c is DebufCard) as DebufCard;
             _game.ExecuteTurn(new PlayDebufAction(debufCard, player1));
 
-            while (_game.CurrentPlayer.Hand.Count(c => debufCard != null && (c is HealAlternativeCard hc &&
-                                                                             (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf))) == 0)
+            while (_game.CurrentPlayer.Hand.Count(c => debufCard != null && c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) == 0)
             {
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
 
             var player2 = _game.CurrentPlayer;
-            var healCard = player2.Hand.Find(c => debufCard != null && (c is HealAlternativeCard hc &&
-                                                                        (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf))) as HealAlternativeCard;
+            var healCard = player2.Hand.Find(c => debufCard != null && c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) as HealAlternativeCard;
 
             _game.ExecuteTurn(new PlayBufAlternativeAction(healCard, player1));
 
@@ -222,27 +220,30 @@ namespace SaboteurTest
         {
             var direction = _game.Field.Ends.First(end => end.Value.Type == CellType.FAKE).Key;
             int xBase;
-            if (direction == EndVariant.LEFT)
+            switch (direction)
             {
-                BuildTunnelAt(0, 0, ConnectorType.LEFT, withOppositeSide: true);
-                BuildTunnelAt(-1, 0, ConnectorType.LEFT);
-                xBase = -2;
-            }
-            else if (direction == EndVariant.RIGHT)
-            {
-                BuildTunnelAt(0, 0, ConnectorType.LEFT, withOppositeSide: true);
-                BuildTunnelAt(-1, 0, ConnectorType.LEFT);
-                xBase = 2;
-            }
-            else
-            {
-                xBase = 0;
+                case EndVariant.LEFT:
+                    BuildTunnelAt(0, 0, ConnectorType.LEFT, true);
+                    BuildTunnelAt(-1, 0, ConnectorType.LEFT);
+                    xBase = -2;
+                    break;
+                case EndVariant.RIGHT:
+                    BuildTunnelAt(0, 0, ConnectorType.LEFT, true);
+                    BuildTunnelAt(-1, 0, ConnectorType.LEFT);
+                    xBase = 2;
+                    break;
+                case EndVariant.CENTER:
+                    xBase = 0;
+                    break;
+                default:
+                    xBase = 0;
+                    break;
             }
 
             var yBase = 0;
             while (yBase != 8)
             {
-                BuildTunnelAt(xBase, yBase, ConnectorType.UP, withOppositeSide: true);
+                BuildTunnelAt(xBase, yBase, ConnectorType.UP, true);
                 yBase++;
             }        
             
