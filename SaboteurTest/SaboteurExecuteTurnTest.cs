@@ -23,8 +23,8 @@ namespace SaboteurTest
         public void SkipTurnTest()
         {
             var currentPlayer = _game.CurrentPlayer;
-            var expectedCard = _game._deck.Peek();
-            var expectedDeckSize = _game._deck.Count - 1;
+            var expectedCard = _game.Deck.Peek();
+            var expectedDeckSize = _game.Deck.Count - 1;
             var expectedCardCount = 1 + currentPlayer.Hand.Count(c => c.Equals(expectedCard));
             if (currentPlayer.Hand.First().Equals(expectedCard))
             {
@@ -33,7 +33,7 @@ namespace SaboteurTest
             
             _game.ExecuteTurn(new SkipAction(currentPlayer.Hand.First()));
 
-            Assert.AreEqual(expectedDeckSize, _game._deck.Count, "New deck's size has failed.");
+            Assert.AreEqual(expectedDeckSize, _game.Deck.Count, "New deck's size has failed.");
             Assert.AreEqual(6, currentPlayer.Hand.Count, "New hand's size has failed.");
             Assert.AreEqual(expectedCardCount, currentPlayer.Hand.Count(c => c.Equals(expectedCard)), "New card's count has failed.");
         }
@@ -135,7 +135,7 @@ namespace SaboteurTest
 
             _game.ExecuteTurn(new BuildAction(card, 0, 0, ConnectorType.RIGHT));
 
-            var rightConnectorOfStart = _game._field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
+            var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
             Assert.IsNotNull(rightConnectorOfStart.Next, "Field's state has failed.");
             var leftConnectorOfNext = rightConnectorOfStart.Next.Outs.First(c => c.Type == ConnectorType.LEFT);
             Assert.IsNotNull(leftConnectorOfNext.Next, "Double link is missed.");
@@ -162,7 +162,7 @@ namespace SaboteurTest
 
             _game.ExecuteTurn(new CollapseAction(collapseCard, 1, 0));
 
-            var rightConnectorOfStart = _game._field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
+            var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
             Assert.IsTrue(rightConnectorOfStart.Next.HasCollapsed, "Cell's state has failed.");
         }
     }

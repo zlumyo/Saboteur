@@ -88,7 +88,7 @@ namespace SaboteurTest
         [DataRow(3)]
         public void CheckGoldHeap(int value)
         {
-            var groups = _game._goldHeap.GroupBy(x => x).Select(x => (x.Key, x.Sum())).ToDictionary(x => x.Key, y => y.Item2);
+            var groups = _game.GoldHeap.GroupBy(x => x).Select(x => (x.Key, x.Sum())).ToDictionary(x => x.Key, y => y.Item2);
             Assert.AreEqual(16 / Convert.ToInt32(Math.Pow(2, value-1)), groups[value] / value, $"{value}'s is failed");
         }
 
@@ -118,23 +118,23 @@ namespace SaboteurTest
         [TestMethod]
         public void CheckHands()
         {
-            Assert.AreEqual(49, _game._deck.Count, "Rest size of deck is failed (6 cards in hand).");
+            Assert.AreEqual(49, _game.Deck.Count, "Rest size of deck is failed (6 cards in hand).");
             Assert.AreEqual(18, _game.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (6 cards in hand).");
 
             var middle = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: MaxPlayers.Take(6).ToArray());
-            Assert.AreEqual(37, middle._deck.Count, "Rest size of deck is failed (5 cards in hand).");
+            Assert.AreEqual(37, middle.Deck.Count, "Rest size of deck is failed (5 cards in hand).");
             Assert.AreEqual(30, middle.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (5 cards in hand).");
 
             var high = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: MaxPlayers.Take(8).ToArray());
-            Assert.AreEqual(35, high._deck.Count, "Rest size of deck is failed (4 cards in hand).");
+            Assert.AreEqual(35, high.Deck.Count, "Rest size of deck is failed (4 cards in hand).");
             Assert.AreEqual(32, high.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (4 cards in hand).");
         }
 
         [TestMethod]
         public void CheckField()
         {
-            Assert.IsTrue(_game._field.Start.Outs.Count == 4 && _game._field.Start.Type == CellType.START, "Start cell is wrong.");
-            Assert.IsTrue(_game._field.Ends.Count == 3 && _game._field.Ends.Count(pair => pair.Value.Type == CellType.GOLD) == 1, "End cells are wrong.");
+            Assert.IsTrue(_game.Field.Start.Outs.Count == 4 && _game.Field.Start.Type == CellType.START, "Start cell is wrong.");
+            Assert.IsTrue(_game.Field.Ends.Count == 3 && _game.Field.Ends.Count(pair => pair.Value.Type == CellType.GOLD) == 1, "End cells are wrong.");
         }
 
         [TestMethod]
