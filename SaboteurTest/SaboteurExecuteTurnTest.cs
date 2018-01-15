@@ -167,7 +167,7 @@ namespace SaboteurTest
         }
 
         [TestMethod]
-        public void MissedCardUnacceptableActionTest()
+        public void MissedCardTest()
         {
             while (_game.CurrentPlayer.Hand.Count(c => c is InvestigateCard) != 0)
             {
@@ -175,6 +175,20 @@ namespace SaboteurTest
             }
             
             var turnResult = _game.ExecuteTurn(new PlayInvestigateAction(new InvestigateCard(), EndVariant.CENTER));
+            
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
+        
+        [TestMethod]
+        public void CollapseStartTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+            
+            var collapseCard = _game.CurrentPlayer.Hand.Find(c => c is CollapseCard) as CollapseCard;
+            var turnResult = _game.ExecuteTurn(new CollapseAction(collapseCard, 0, 0));
             
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
