@@ -9,18 +9,14 @@ namespace SaboteurTest
     [TestClass]
     public class SaboteurExecuteTurnTest
     {
-        private static readonly string[] _minPlayers = { "player1", "player2", "player3" };
+        private static readonly string[] MinPlayers = { "player1", "player2", "player3" };
 
         private SaboteurGame _game;
-
-        public SaboteurExecuteTurnTest()
-        {
-        }
 
         [TestInitialize]
         public void TestInit()
         {
-            _game = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: _minPlayers);
+            _game = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: MinPlayers);
         }
 
         [TestMethod]
@@ -71,7 +67,7 @@ namespace SaboteurTest
 
             _game.ExecuteTurn(new PlayDebufAction(card, currentPlayer));
 
-            Assert.IsTrue(currentPlayer.Debufs.Contains(card.Debuf) && currentPlayer.Debufs.Count == 1, "Debufs' state has failed.");
+            Assert.IsTrue(card != null && (currentPlayer.Debufs.Contains(card.Debuf) && currentPlayer.Debufs.Count == 1), "Debufs' state has failed.");
         }
 
 
@@ -87,13 +83,13 @@ namespace SaboteurTest
             var debufCard = player1.Hand.Find(c => c is DebufCard) as DebufCard;
             _game.ExecuteTurn(new PlayDebufAction(debufCard, player1));
 
-            while (_game.CurrentPlayer.Hand.Count(c => c is HealCard hc && hc.Heal == debufCard.Debuf) == 0)
+            while (_game.CurrentPlayer.Hand.Count(c => debufCard != null && (c is HealCard hc && hc.Heal == debufCard.Debuf)) == 0)
             {
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
 
             var player2 = _game.CurrentPlayer;
-            var healCard = player2.Hand.Find(c => c is HealCard hc && hc.Heal == debufCard.Debuf) as HealCard;
+            var healCard = player2.Hand.Find(c => debufCard != null && (c is HealCard hc && hc.Heal == debufCard.Debuf)) as HealCard;
 
             _game.ExecuteTurn(new PlayBufAction(healCard, player1));
 
@@ -112,13 +108,15 @@ namespace SaboteurTest
             var debufCard = player1.Hand.Find(c => c is DebufCard) as DebufCard;
             _game.ExecuteTurn(new PlayDebufAction(debufCard, player1));
 
-            while (_game.CurrentPlayer.Hand.Count(c => c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) == 0)
+            while (_game.CurrentPlayer.Hand.Count(c => debufCard != null && (c is HealAlternativeCard hc &&
+                                                                             (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf))) == 0)
             {
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
 
             var player2 = _game.CurrentPlayer;
-            var healCard = player2.Hand.Find(c => c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) as HealAlternativeCard;
+            var healCard = player2.Hand.Find(c => debufCard != null && (c is HealAlternativeCard hc &&
+                                                                        (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf))) as HealAlternativeCard;
 
             _game.ExecuteTurn(new PlayBufAlternativeAction(healCard, player1));
 
