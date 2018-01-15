@@ -51,7 +51,7 @@ namespace SaboteurTest
             }
 
             var currentPlayer = _game.CurrentPlayer;
-            var card = _game.CurrentPlayer.Hand.Find(c => c is InvestigateCard) as InvestigateCard;
+            var card = currentPlayer.Hand.Find(c => c is InvestigateCard) as InvestigateCard;
 
             _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.CENTER));
 
@@ -67,7 +67,7 @@ namespace SaboteurTest
             }
 
             var currentPlayer = _game.CurrentPlayer;
-            var card = _game.CurrentPlayer.Hand.Find(c => c is DebufCard) as DebufCard;
+            var card = currentPlayer.Hand.Find(c => c is DebufCard) as DebufCard;
 
             _game.ExecuteTurn(new PlayDebufAction(card, currentPlayer));
 
@@ -133,7 +133,6 @@ namespace SaboteurTest
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
 
-            var currentPlayer = _game.CurrentPlayer;
             var card = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard) as TunnelCard;
 
             _game.ExecuteTurn(new BuildAction(card, 0, 0, ConnectorType.RIGHT));
