@@ -80,13 +80,12 @@ namespace SaboteurFoundation
         /// <param name="withoutDeadlocks">Ban deadlocks building?</param>
         /// <param name="skipLoosers">Ban broken players to grab a gold?</param>
         /// <param name="playersNames">Set of players.</param>
-        /// <param name="rnd">Optional custom random engine.</param>
         /// <remarks>
         /// Player which got cards last will turn first.
         /// </remarks>
-        private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, HashSet<string> playersNames, Random rnd)
+        private SaboteurGame(bool withoutDeadlocks, bool skipLoosers, HashSet<string> playersNames)
         {
-            _rnd = rnd;
+            _rnd = new Random();
             _goldHeap = new List<int>(28)
             {
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -134,12 +133,12 @@ namespace SaboteurFoundation
         /// <param name="skipLoosers">Ban broken players to grab a gold?</param>
         /// <param name="playersNames">Set of players.</param>
         /// <returns>Instance of new game.</returns>
-        public static SaboteurGame NewGame(bool withoutDeadlocks, bool skipLoosers, string[] playersNames, Random rnd = null)
+        public static SaboteurGame NewGame(bool withoutDeadlocks, bool skipLoosers, string[] playersNames)
         {
             if (playersNames.Length < MIN_PLAYERS_COUNT || playersNames.Length > MAX_PLAYERS_COUNT)
                 throw new ArgumentOutOfRangeException($"Players count must be between {MIN_PLAYERS_COUNT} and {MAX_PLAYERS_COUNT}.");
 
-            return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames.ToHashSet(), rnd ?? new Random());
+            return new SaboteurGame(withoutDeadlocks, skipLoosers, playersNames.ToHashSet());
         }
 
         /// <summary>
