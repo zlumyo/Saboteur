@@ -165,5 +165,18 @@ namespace SaboteurTest
             var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
             Assert.IsTrue(rightConnectorOfStart.Next.HasCollapsed, "Cell's state has failed.");
         }
+
+        [TestMethod]
+        public void MissedCardUnacceptableActionTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is InvestigateCard) != 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+            
+            var turnResult = _game.ExecuteTurn(new PlayInvestigateAction(new InvestigateCard(), EndVariant.CENTER));
+            
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
     }
 }
