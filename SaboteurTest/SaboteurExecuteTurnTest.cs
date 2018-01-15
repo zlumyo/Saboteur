@@ -30,7 +30,11 @@ namespace SaboteurTest
             var expectedCard = _game._deck.Peek();
             var expectedDeckSize = _game._deck.Count - 1;
             var expectedCardCount = 1 + currentPlayer.Hand.Count(c => c.Equals(expectedCard));
-
+            if (currentPlayer.Hand.First().Equals(expectedCard))
+            {
+                expectedCardCount--;
+            }
+            
             _game.ExecuteTurn(new SkipAction(currentPlayer.Hand.First()));
 
             Assert.AreEqual(expectedDeckSize, _game._deck.Count, "New deck's size has failed.");
