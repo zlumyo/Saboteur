@@ -374,8 +374,8 @@ namespace SaboteurFoundation
             else
             {
                 watched.Add((xCurrent, yCurrent));
-                var temp = current.Outs.Where(_out => _out.Next != null && !watched.Contains((xTarget+ Connector.ConnectorTypeToDeltaX(_out.Type), yTarget+ Connector.ConnectorTypeToDeltaY(_out.Type))))
-                    .Select(filtered => _ScanField(filtered.Next, xTarget+ Connector.ConnectorTypeToDeltaX(filtered.Type), yTarget+ Connector.ConnectorTypeToDeltaY(filtered.Type), xTarget, yTarget, watched))
+                var temp = current.Outs.Where(_out => _out.Next != null && !watched.Contains((xCurrent + Connector.ConnectorTypeToDeltaX(_out.Type), yCurrent + Connector.ConnectorTypeToDeltaY(_out.Type))))
+                    .Select(filtered => _ScanField(filtered.Next, xCurrent + Connector.ConnectorTypeToDeltaX(filtered.Type), yCurrent + Connector.ConnectorTypeToDeltaY(filtered.Type), xTarget, yTarget, watched))
                     .Where(result => result.Item1 != null).ToArray();
                 return temp.Length == 0 ? (null, 0, 0) : temp[0];
             }
