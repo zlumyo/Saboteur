@@ -318,13 +318,11 @@ namespace SaboteurFoundation
             if (outs.Contains(flippedType))
             {
                 realOuts = outs;
-                HashSet<(int, int)> watched = new HashSet<(int, int)>();
                 return CheckNeighbors(realOuts);
             }
             else if (flippedOuts.Contains(flippedType))
             {
                 realOuts = flippedOuts;
-                HashSet<(int, int)> watched = new HashSet<(int, int)>();
                 return CheckNeighbors(realOuts);
             }
             else
