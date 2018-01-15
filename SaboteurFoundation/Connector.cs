@@ -54,7 +54,7 @@
             }
         }
 
-        public static ConnectorType FlipConnectorType(ConnectorType cType)
+        internal static ConnectorType FlipConnectorType(ConnectorType cType)
         {
             switch (cType)
             {
