@@ -131,7 +131,6 @@ namespace SaboteurTest
 
             var currentPlayer = _game.CurrentPlayer;
             var card = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard) as TunnelCard;
-            var expectedCardCount = currentPlayer.Hand.Count(c => c.Equals(card)) - 1;
 
             _game.ExecuteTurn(new BuildAction(card, 0, 0, ConnectorType.RIGHT));
 
