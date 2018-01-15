@@ -140,5 +140,30 @@ namespace SaboteurTest
             var rightConnectorOfStart = _game._field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
             Assert.IsNotNull(rightConnectorOfStart.Next, "Field's state has failed.");
         }
+
+        [TestMethod]
+        public void CollapseTunnelTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.LEFT)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var tunnelCard = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard) as TunnelCard;
+
+            _game.ExecuteTurn(new BuildAction(tunnelCard, 0, 0, ConnectorType.RIGHT));
+
+            while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var collapseCard = _game.CurrentPlayer.Hand.Find(c => c is CollapseCard) as CollapseCard;
+
+            _game.ExecuteTurn(new CollapseAction(collapseCard, 1, 0));
+
+            var rightConnectorOfStart = _game._field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
+            Assert.IsTrue(rightConnectorOfStart.Next.HasCollapsed, "Cell's state has failed.");
+        }
     }
 }
