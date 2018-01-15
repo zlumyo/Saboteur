@@ -39,7 +39,7 @@ namespace SaboteurFoundation
         /// <summary>
         /// Set of players which are participating in game.
         /// </summary>
-        public HashSet<Player> Players { get; private set; }
+        public HashSet<Player> Players { get; }
         /// <summary>
         /// Reference to current player.
         /// </summary>
@@ -152,7 +152,8 @@ namespace SaboteurFoundation
         {
             if (IsGameEnded)
                 return new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
-            _SwapCard(action.CardToAct);
+            if (!_SwapCard(action.CardToAct))
+                return new UnacceptableActionResult();
 
             TurnResult result;
             switch (action)
@@ -495,13 +496,14 @@ namespace SaboteurFoundation
         /// Drops card from action and getting next from _deck.
         /// </summary>
         /// <param name="card">Card playing during turn.</param>
-        private void _SwapCard(Card card)
+        private bool _SwapCard(Card card)
         {
             var index = CurrentPlayer.Hand.FindIndex(x => x.Equals(card));
-            if (index == -1) throw new ArgumentOutOfRangeException(nameof(card)); //TODO refactor to return bool
+            if (index == -1) return false;
             CurrentPlayer.Hand.RemoveAt(index);
             if (Deck.Count == 0) _skipedTurnsInLine++;
             else CurrentPlayer.Hand.Add(Deck.Pop());
+            return true;
         }
 
         /// <summary>
