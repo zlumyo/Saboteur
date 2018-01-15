@@ -120,5 +120,23 @@ namespace SaboteurTest
 
             Assert.IsTrue(player1.Debufs.Count == 0, "Debufs' state has failed.");
         }
+
+        [TestMethod]
+        public void BuildTunnelTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.LEFT)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var currentPlayer = _game.CurrentPlayer;
+            var card = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard) as TunnelCard;
+            var expectedCardCount = currentPlayer.Hand.Count(c => c.Equals(card)) - 1;
+
+            _game.ExecuteTurn(new BuildAction(card, 0, 0, ConnectorType.RIGHT));
+
+            var rightConnectorOfStart = _game._field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
+            Assert.IsNotNull(rightConnectorOfStart.Next, "Field's state has failed.");
+        }
     }
 }
