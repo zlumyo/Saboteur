@@ -224,7 +224,7 @@ namespace SaboteurFoundation
         /// <returns>Result of turn.</returns>
         private TurnResult _ProcessBuildAction(BuildAction ba)
         {
-            if (CurrentPlayer.Debufs.Count != 0) // если у игнока есть дебафы, то строить ему нельзя
+            if (CurrentPlayer.Debufs.Count != 0) // если у игрока есть дебафы, то строить ему нельзя
             {
                 return new UnacceptableActionResult();
             }
@@ -358,7 +358,7 @@ namespace SaboteurFoundation
                 HashSet<(int, int)> watched = new HashSet<(int, int)>();
                 return cTypes.Where(_out => _out != flippedType).All(_out => {
                     var (cell, _, _) = _ScanField(_field.Start, 0, 0, x + Connector.ConnectorTypeToDeltaX(_out), y + Connector.ConnectorTypeToDeltaY(_out), watched);
-                    return cell == null ? false : cell.Outs.Count(cellOut => cellOut.Type == FlipConnectorType(_out)) == 1;
+                    return cell == null ? true : cell.Outs.Count(cellOut => cellOut.Type == FlipConnectorType(_out)) == 1;
                 });
             }
         }
