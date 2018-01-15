@@ -114,9 +114,10 @@ namespace SaboteurFoundation
             while (lastPlayer != _playerEnumerator.Current) _playerEnumerator.MoveNext();
 
             Deck = new Stack<Card>(_GenerateDeck(_rnd));
-            foreach (var p in Players)
+            foreach (var (p, r) in Players.Zip(playersRoles, (p, r) => (p, r)))
             {
                 p.Hand.Clear();
+                p.Role = r;
                 p.Hand.AddRange(Deck.Take(cardsInHand));
                 Deck = new Stack<Card>(Deck.Skip(cardsInHand));
             }
