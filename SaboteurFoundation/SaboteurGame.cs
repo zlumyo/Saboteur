@@ -263,7 +263,7 @@ namespace SaboteurFoundation
             }
 
             // теперь можно класть карту на поле
-            connector.Next = new GameCell(CellType.TUNNEL, outs.Select(cType => new Connector(cType)).ToHashSet());
+            connector.Next = new GameCell(CellType.TUNNEL, outs.Select(cType => new Connector(cType)).ToHashSet(), tunnelCard.IsDeadlock);
             connector.Next.Outs.First(_out => _out.Type == Connector.FlipConnectorType(connector.Type)).Next = result; // добавляем обратную связь
 
             // проверяем, достигли ли какой-нибудь финишной карты
@@ -358,6 +358,11 @@ namespace SaboteurFoundation
             else
             {
                 watched.Add((xCurrent, yCurrent));
+                if (current.IsDeadlock)
+                {
+                    return (null, 0, 0);
+                }
+
                 var temp = current.Outs.Where(_out => _out.Next != null && !watched.Contains((xCurrent + Connector.ConnectorTypeToDeltaX(_out.Type), yCurrent + Connector.ConnectorTypeToDeltaY(_out.Type))))
                     .Select(filtered => _ScanField(filtered.Next, xCurrent + Connector.ConnectorTypeToDeltaX(filtered.Type), yCurrent + Connector.ConnectorTypeToDeltaY(filtered.Type), xTarget, yTarget, watched))
                     .Where(result => result.Item1 != null).ToArray();
