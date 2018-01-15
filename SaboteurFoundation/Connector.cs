@@ -53,5 +53,22 @@
                     return 0;
             }
         }
+
+        public static ConnectorType FlipConnectorType(ConnectorType cType)
+        {
+            switch (cType)
+            {
+                case ConnectorType.DOWN:
+                    return ConnectorType.UP;
+                case ConnectorType.LEFT:
+                    return ConnectorType.RIGHT;
+                case ConnectorType.RIGHT:
+                    return ConnectorType.LEFT;
+                case ConnectorType.UP:
+                    return ConnectorType.DOWN;
+                default:
+                    return cType;
+            }
+        }
     }
 }

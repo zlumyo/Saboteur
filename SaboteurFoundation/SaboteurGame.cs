@@ -264,6 +264,7 @@ namespace SaboteurFoundation
 
             // теперь можно класть карту на поле
             connector.Next = new GameCell(CellType.TUNNEL, outs.Select(cType => new Connector(cType)).ToHashSet());
+            connector.Next.Outs.First(_out => _out.Type == Connector.FlipConnectorType(connector.Type)).Next = result; // добавляем обратную связь
 
             // проверяем, достигли ли какой-нибудь финишной карты
             if (_field.CheckFinishReached(connector.Next, xResult+Connector.ConnectorTypeToDeltaX(connector.Type), yResult+Connector.ConnectorTypeToDeltaY(connector.Type), out GameCell[] finishes))
@@ -313,7 +314,7 @@ namespace SaboteurFoundation
         private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, int x, int y, out HashSet<ConnectorType> realOuts)
         {
             var flippedOuts = FlipOuts();
-            var flippedType = FlipConnectorType(type);
+            var flippedType = Connector.FlipConnectorType(type);
 
             if (outs.Contains(flippedType))
             {
@@ -333,24 +334,7 @@ namespace SaboteurFoundation
 
             HashSet<ConnectorType> FlipOuts()
             {
-                return outs.Select(FlipConnectorType).ToHashSet();
-            }
-
-            ConnectorType FlipConnectorType(ConnectorType cType)
-            {
-                switch (type)
-                {
-                    case ConnectorType.DOWN:
-                        return ConnectorType.UP;
-                    case ConnectorType.LEFT:
-                        return ConnectorType.RIGHT;
-                    case ConnectorType.RIGHT:
-                        return ConnectorType.LEFT;
-                    case ConnectorType.UP:
-                        return ConnectorType.DOWN;
-                    default:
-                        return cType;
-                }
+                return outs.Select(Connector.FlipConnectorType).ToHashSet();
             }
 
             bool CheckNeighbors(HashSet<ConnectorType> cTypes)
@@ -358,7 +342,7 @@ namespace SaboteurFoundation
                 HashSet<(int, int)> watched = new HashSet<(int, int)>();
                 return cTypes.Where(_out => _out != flippedType).All(_out => {
                     var (cell, _, _) = _ScanField(_field.Start, 0, 0, x + Connector.ConnectorTypeToDeltaX(_out), y + Connector.ConnectorTypeToDeltaY(_out), watched);
-                    return cell == null ? true : cell.Outs.Count(cellOut => cellOut.Type == FlipConnectorType(_out)) == 1;
+                    return cell == null ? true : cell.Outs.Count(cellOut => cellOut.Type == Connector.FlipConnectorType(_out)) == 1;
                 });
             }
         }
