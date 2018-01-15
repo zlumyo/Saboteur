@@ -24,9 +24,9 @@ namespace SaboteurTest
 
         public SaboteurNewGameTest()
         {
-            _game = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, _minPlayers);
-            _gameWithoutDeadlocks = SaboteurGame.NewGame(withoutDeadlocks: true, skipLoosers: false, _minPlayers);
-            _gameSkipLoosers = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: true, _minPlayers);
+            _game = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: _minPlayers);
+            _gameWithoutDeadlocks = SaboteurGame.NewGame(withoutDeadlocks: true, skipLoosers: false, playersNames: _minPlayers);
+            _gameSkipLoosers = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: true, playersNames: _minPlayers);
         }
 
         [TestMethod]
@@ -121,11 +121,11 @@ namespace SaboteurTest
             Assert.AreEqual(49, _game._deck.Count, "Rest size of deck is failed (6 cards in hand).");
             Assert.AreEqual(18, _game.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (6 cards in hand).");
 
-            var middle = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, _maxPlayers.Take(6).ToArray());
+            var middle = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: _maxPlayers.Take(6).ToArray());
             Assert.AreEqual(37, middle._deck.Count, "Rest size of deck is failed (5 cards in hand).");
             Assert.AreEqual(30, middle.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (5 cards in hand).");
 
-            var high = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, _maxPlayers.Take(8).ToArray());
+            var high = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: _maxPlayers.Take(8).ToArray());
             Assert.AreEqual(35, high._deck.Count, "Rest size of deck is failed (4 cards in hand).");
             Assert.AreEqual(32, high.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (4 cards in hand).");
         }

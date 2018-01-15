@@ -20,7 +20,7 @@ namespace SaboteurTest
         [TestInitialize]
         public void TestInit()
         {
-            _game = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, _minPlayers);
+            _game = SaboteurGame.NewGame(withoutDeadlocks: false, skipLoosers: false, playersNames: _minPlayers);
         }
 
         [TestMethod]
