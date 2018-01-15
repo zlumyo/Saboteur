@@ -126,14 +126,7 @@ namespace SaboteurTest
         [TestMethod]
         public void BuildTunnelTest()
         {
-            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.LEFT)) == 0)
-            {
-                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
-            }
-
-            var card = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.LEFT)) as TunnelCard;
-
-            _game.ExecuteTurn(new BuildAction(card, 0, 0, ConnectorType.RIGHT));
+            BuildTunnelAt(0, 0, ConnectorType.RIGHT);
 
             var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
             Assert.IsNotNull(rightConnectorOfStart.Next, "Field's state has failed.");
@@ -144,14 +137,7 @@ namespace SaboteurTest
         [TestMethod]
         public void CollapseTunnelTest()
         {
-            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.LEFT)) == 0)
-            {
-                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
-            }
-
-            var tunnelCard = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard) as TunnelCard;
-
-            _game.ExecuteTurn(new BuildAction(tunnelCard, 0, 0, ConnectorType.RIGHT));
+            BuildTunnelAt(0, 0, ConnectorType.RIGHT);
 
             while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
             {
@@ -205,6 +191,43 @@ namespace SaboteurTest
             var turnResult = _game.ExecuteTurn(new CollapseAction(collapseCard, 1, 0));
             
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
+        
+        [TestMethod]
+        public void CollapseAlreadyCollapsedTest()
+        {
+            BuildTunnelAt(0, 0, ConnectorType.RIGHT);
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+            
+            var collapseCard1 = _game.CurrentPlayer.Hand.Find(c => c is CollapseCard) as CollapseCard;
+            _game.ExecuteTurn(new CollapseAction(collapseCard1, 1, 0));
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+            
+            var collapseCard2 = _game.CurrentPlayer.Hand.Find(c => c is CollapseCard) as CollapseCard;
+            var turnResult = _game.ExecuteTurn(new CollapseAction(collapseCard2, 1, 0));
+            
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
+        
+        private void BuildTunnelAt(int x, int y, ConnectorType side)
+        {
+            var flippedSide = Connector.FlipConnectorType(side);
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(flippedSide)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var tunnelCard = _game.CurrentPlayer.Hand.Find(c => c is TunnelCard tc && tc.Outs.Contains(flippedSide)) as TunnelCard;
+
+            _game.ExecuteTurn(new BuildAction(tunnelCard, x, y, side));
         }
     }
 }
