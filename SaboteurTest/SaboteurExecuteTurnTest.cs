@@ -192,5 +192,19 @@ namespace SaboteurTest
             
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
+        
+        [TestMethod]
+        public void CollapseNonexistingTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+            
+            var collapseCard = _game.CurrentPlayer.Hand.Find(c => c is CollapseCard) as CollapseCard;
+            var turnResult = _game.ExecuteTurn(new CollapseAction(collapseCard, 1, 0));
+            
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
     }
 }
