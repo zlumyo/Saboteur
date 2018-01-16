@@ -71,5 +71,33 @@ namespace SaboteurTest
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
+        
+        [TestMethod]
+        public void PreventBuildWithLackOfConnectorTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Left) && !tc.Outs.Contains(ConnectorType.Up) && !tc.Outs.Contains(ConnectorType.Down)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var tunnelCard1 = _game.CurrentPlayer.Hand
+                .Find(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Left) && !tc.Outs.Contains(ConnectorType.Up) && !tc.Outs.Contains(ConnectorType.Down))
+                as TunnelCard;
+
+            _game.ExecuteTurn(new BuildAction(tunnelCard1, 0, 0, ConnectorType.Right));
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && (tc.Outs.Contains(ConnectorType.Up) || tc.Outs.Contains(ConnectorType.Down))) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var tunnelCard2 = _game.CurrentPlayer.Hand
+                    .Find(c => c is TunnelCard tc && (tc.Outs.Contains(ConnectorType.Up) || tc.Outs.Contains(ConnectorType.Down)))
+                as TunnelCard;
+
+            var turnResult = _game.ExecuteTurn(new BuildAction(tunnelCard2, 1, 0, ConnectorType.Up));
+
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
     }
 }
