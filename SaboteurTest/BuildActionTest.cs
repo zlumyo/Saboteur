@@ -62,5 +62,14 @@ namespace SaboteurTest
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
+        
+        [TestMethod]
+        public void PreventBuildWhereAlreadyBuiltTest()
+        {
+            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
+            var turnResult = Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
+
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
     }
 }
