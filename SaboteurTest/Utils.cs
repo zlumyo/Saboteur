@@ -7,9 +7,9 @@ namespace SaboteurTest
 {
     public static class Utils
     {
-        public static void BuildTunnelAt(SaboteurGame game, int x, int y, ConnectorType side, bool withOppositeSide = false)
+        public static TurnResult BuildTunnelAt(SaboteurGame game, int x, int y, ConnectorType side, bool withOppositeSide = false)
         {
-            BuildTunnelAtBy(game, x, y, side, withOppositeSide);
+            return BuildTunnelAtBy(game, x, y, side, withOppositeSide);
         }
         
         public static TurnResult BuildTunnelAtBy(SaboteurGame game, int x, int y, ConnectorType side, bool withOppositeSide = false, Player builder = null)

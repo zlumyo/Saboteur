@@ -32,7 +32,7 @@ namespace SaboteurTest
 
             _game.ExecuteTurn(new PlayDebufAction(card, currentPlayer));
 
-            var turnResult = Utils.BuildTunnelAtBy(_game, 1, 0, ConnectorType.Right, false, currentPlayer);
+            var turnResult = Utils.BuildTunnelAtBy(_game, 0, 0, ConnectorType.Right, false, currentPlayer);
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
@@ -50,7 +50,15 @@ namespace SaboteurTest
             var currentPlayer = _game.CurrentPlayer;
             var card = currentPlayer.Hand.Find(c => c is TunnelCard tc && tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Down)) as TunnelCard;
 
-            var turnResult = _game.ExecuteTurn(new BuildAction(card, 0, 1, ConnectorType.Up));
+            var turnResult = _game.ExecuteTurn(new BuildAction(card, 0, 0, ConnectorType.Up));
+
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
+        
+        [TestMethod]
+        public void PreventBuildNearNothingTest()
+        {
+            var turnResult = Utils.BuildTunnelAt(_game, 2, 0, ConnectorType.Right);
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
