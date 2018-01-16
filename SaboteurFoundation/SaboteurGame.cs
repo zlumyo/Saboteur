@@ -225,7 +225,8 @@ namespace SaboteurFoundation
 
             var tunnelCard = ba.CardToAct as TunnelCard;
             // если это игра без тупиков, то такой ход недопустим
-            if (tunnelCard != null && (tunnelCard.IsDeadlock && WithoutDeadlocks))
+            // ReSharper disable once PossibleNullReferenceException
+            if (tunnelCard.IsDeadlock && WithoutDeadlocks)
                 return new UnacceptableActionResult();
 
             // пытаемся найти на поле карту с указанной координатой
@@ -244,7 +245,6 @@ namespace SaboteurFoundation
                 return new UnacceptableActionResult();
 
             // если новая карта не подходит к нужному коннектору, то такой ход недопустим
-            // ReSharper disable once PossibleNullReferenceException
             if (!_CheckConnectors(connector.Type, tunnelCard.Outs, xResult, yResult, out var outs))
                 return new UnacceptableActionResult();
 
@@ -280,9 +280,7 @@ namespace SaboteurFoundation
                     CurrentPlayer.Gold += _popGoldHeap();
                     _NextPlayer();
                     if (CurrentPlayer.Role == GameRole.BAD || (SkipLoosers && CurrentPlayer.Debufs.Count != 0))
-                    {
                         _NextPlayer();
-                    }
                 }
 
                 Round++; // увеличиваем счётчик раундов
