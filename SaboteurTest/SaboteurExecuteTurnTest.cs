@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SaboteurFoundation;
 using SaboteurFoundation.Cards;
 using SaboteurFoundation.Turn;
@@ -80,16 +81,16 @@ namespace SaboteurTest
             }
 
             var player1 = _game.CurrentPlayer;
-            var debufCard = player1.Hand.Find(c => c is DebufCard) as DebufCard;
+            if (!(player1.Hand.Find(c => c is DebufCard) is DebufCard debufCard)) throw new ArgumentNullException(nameof(debufCard));
             _game.ExecuteTurn(new PlayDebufAction(debufCard, player1));
 
-            while (_game.CurrentPlayer.Hand.Count(c => debufCard != null && c is HealCard hc && hc.Heal == debufCard.Debuf) == 0)
+            while (_game.CurrentPlayer.Hand.Count(c => c is HealCard hc && hc.Heal == debufCard.Debuf) == 0)
             {
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
 
             var player2 = _game.CurrentPlayer;
-            var healCard = player2.Hand.Find(c => debufCard != null && c is HealCard hc && hc.Heal == debufCard.Debuf) as HealCard;
+            var healCard = player2.Hand.Find(c => c is HealCard hc && hc.Heal == debufCard.Debuf) as HealCard;
 
             _game.ExecuteTurn(new PlayBufAction(healCard, player1));
 
@@ -105,16 +106,16 @@ namespace SaboteurTest
             }
 
             var player1 = _game.CurrentPlayer;
-            var debufCard = player1.Hand.Find(c => c is DebufCard) as DebufCard;
+            if (!(player1.Hand.Find(c => c is DebufCard) is DebufCard debufCard)) throw new ArgumentNullException(nameof(debufCard));
             _game.ExecuteTurn(new PlayDebufAction(debufCard, player1));
 
-            while (_game.CurrentPlayer.Hand.Count(c => debufCard != null && c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) == 0)
+            while (_game.CurrentPlayer.Hand.Count(c => c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) == 0)
             {
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
 
             var player2 = _game.CurrentPlayer;
-            var healCard = player2.Hand.Find(c => debufCard != null && c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) as HealAlternativeCard;
+            var healCard = player2.Hand.Find(c => c is HealAlternativeCard hc && (hc.HealAlternative1 == debufCard.Debuf || hc.HealAlternative2 == debufCard.Debuf)) as HealAlternativeCard;
 
             _game.ExecuteTurn(new PlayBufAlternativeAction(healCard, player1));
 
@@ -255,6 +256,32 @@ namespace SaboteurTest
             var collapseCard = _game.CurrentPlayer.Hand.Find(c => c is CollapseCard) as CollapseCard;
             var turnResult = _game.ExecuteTurn(new CollapseAction(collapseCard, xBase, yBase));
             
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
+        
+        [TestMethod]
+        public void DebufAlreadyDebufedTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is DebufCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var debufedPlayer = _game.CurrentPlayer;
+            if (!(debufedPlayer.Hand.Find(c => c is DebufCard) is DebufCard card1)) throw new ArgumentNullException(nameof(card1));
+
+            _game.ExecuteTurn(new PlayDebufAction(card1, debufedPlayer));
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is DebufCard dc && dc.Debuf == card1.Debuf) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var anotherPlayer = _game.CurrentPlayer;
+            var card2 = anotherPlayer.Hand.Find(c => c is DebufCard dc && dc.Debuf == card1.Debuf) as DebufCard;
+            
+            var turnResult =_game.ExecuteTurn(new PlayDebufAction(card2, debufedPlayer));
+
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
