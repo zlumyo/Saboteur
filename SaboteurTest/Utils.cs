@@ -15,7 +15,8 @@ namespace SaboteurTest
         public static TurnResult BuildTunnelAtBy(SaboteurGame game, int x, int y, ConnectorType side, bool withOppositeSide = false, Player builder = null)
         {          
             var flippedSide = Connector.FlipConnectorType(side);
-            while ((builder == null || game.CurrentPlayer != builder) && game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(flippedSide) && (!withOppositeSide || tc.Outs.Contains(side))) == 0)
+            // ReSharper disable once PossibleNullReferenceException
+            while (builder != null ^ game.CurrentPlayer == builder ^ game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(flippedSide) && (!withOppositeSide || tc.Outs.Contains(side))) == 0)
             {
                 game.ExecuteTurn(new SkipAction(game.CurrentPlayer.Hand.First()));
             }
