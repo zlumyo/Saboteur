@@ -280,7 +280,7 @@ namespace SaboteurTest
             var anotherPlayer = _game.CurrentPlayer;
             var card2 = anotherPlayer.Hand.Find(c => c is DebufCard dc && dc.Debuf == card1.Debuf) as DebufCard;
             
-            var turnResult =_game.ExecuteTurn(new PlayDebufAction(card2, debufedPlayer));
+            var turnResult = _game.ExecuteTurn(new PlayDebufAction(card2, debufedPlayer));
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
@@ -306,7 +306,7 @@ namespace SaboteurTest
             var anotherPlayer = _game.CurrentPlayer;
             var card2 = anotherPlayer.Hand.Find(c => c is HealCard hc && hc.Heal != card1.Debuf) as HealCard;
             
-            var turnResult =_game.ExecuteTurn(new PlayBufAction(card2, debufedPlayer));
+            var turnResult = _game.ExecuteTurn(new PlayBufAction(card2, debufedPlayer));
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
@@ -332,7 +332,30 @@ namespace SaboteurTest
             var anotherPlayer = _game.CurrentPlayer;
             var card2 = anotherPlayer.Hand.Find(c => c is HealAlternativeCard hc && hc.HealAlternative1 != card1.Debuf && hc.HealAlternative2 != card1.Debuf) as HealAlternativeCard;
             
-            var turnResult =_game.ExecuteTurn(new PlayBufAlternativeAction(card2, debufedPlayer));
+            var turnResult = _game.ExecuteTurn(new PlayBufAlternativeAction(card2, debufedPlayer));
+
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
+        
+        [TestMethod]
+        public void InvestigateAlreadyInvestigatedTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is InvestigateCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var currentPlayer = _game.CurrentPlayer;
+            var card = currentPlayer.Hand.Find(c => c is InvestigateCard) as InvestigateCard;
+
+            _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.CENTER)); 
+            
+            while (_game.CurrentPlayer != currentPlayer)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+            
+            var turnResult = _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.CENTER));
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
