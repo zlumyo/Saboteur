@@ -311,6 +311,32 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        [TestMethod]
+        public void AlternateHealWrongDebufTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is DebufCard) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var debufedPlayer = _game.CurrentPlayer;
+            if (!(debufedPlayer.Hand.Find(c => c is DebufCard) is DebufCard card1)) throw new ArgumentNullException(nameof(card1));
+
+            _game.ExecuteTurn(new PlayDebufAction(card1, debufedPlayer));
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is HealAlternativeCard hc && hc.HealAlternative1 != card1.Debuf && hc.HealAlternative2 != card1.Debuf) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var anotherPlayer = _game.CurrentPlayer;
+            var card2 = anotherPlayer.Hand.Find(c => c is HealAlternativeCard hc && hc.HealAlternative1 != card1.Debuf && hc.HealAlternative2 != card1.Debuf) as HealAlternativeCard;
+            
+            var turnResult =_game.ExecuteTurn(new PlayBufAlternativeAction(card2, debufedPlayer));
+
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
+        
         private void BuildTunnelAt(int x, int y, ConnectorType side, bool withOppositeSide = false)
         {
             var flippedSide = Connector.FlipConnectorType(side);
