@@ -36,5 +36,23 @@ namespace SaboteurTest
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
+        
+        [TestMethod]
+        public void BanDeadlocksWhenWithoutDeadlocksTest()
+        {
+            _game = SaboteurGame.NewGame(true, false, MinPlayers);
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.IsDeadlock && tc.Outs.Contains(ConnectorType.DOWN)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var currentPlayer = _game.CurrentPlayer;
+            var card = currentPlayer.Hand.Find(c => c is TunnelCard tc && tc.IsDeadlock && tc.Outs.Contains(ConnectorType.DOWN)) as TunnelCard;
+
+            var turnResult = _game.ExecuteTurn(new BuildAction(card, 0, 1, ConnectorType.UP));
+
+            Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
+        }
     }
 }
