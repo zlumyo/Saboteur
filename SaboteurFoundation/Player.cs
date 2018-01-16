@@ -39,12 +39,12 @@ namespace SaboteurFoundation
 
         public static bool operator ==(Player p1, Player p2)
         {
-            return p1.Equals(p2);
+            return !ReferenceEquals(p1, null) && p1.Equals(p2);
         }
 
         public static bool operator !=(Player p1, Player p2)
         {
-            return !p1.Equals(p2);
+            return !ReferenceEquals(p1, null) && !p1.Equals(p2);
         }
 
         public void ClearEndStatuses()
