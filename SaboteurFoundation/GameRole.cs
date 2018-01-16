@@ -2,6 +2,6 @@
 {
     public enum GameRole
     {
-        GOOD, BAD
+        Good, Bad
     }
 }

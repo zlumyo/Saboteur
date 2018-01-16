@@ -96,7 +96,7 @@ namespace SaboteurFoundation
             IsGameEnded = false;
             WithoutDeadlocks = withoutDeadlocks;
             SkipLoosers = skipLoosers;
-            Players = playersNames.Select(name => new Player(name, GameRole.GOOD, new Card[] { })).ToHashSet();
+            Players = playersNames.Select(name => new Player(name, GameRole.Good, new Card[] { })).ToHashSet();
 
             _PrepareRound();
         }
@@ -117,15 +117,15 @@ namespace SaboteurFoundation
             foreach (var (p, r) in Players.Zip(playersRoles, (p, r) => (p, r)))
             {
                 p.Hand.Clear();
+                p.ClearEndStatuses();
                 p.Role = r;
                 p.Hand.AddRange(Deck.Take(cardsInHand));
                 Deck = new Stack<Card>(Deck.Skip(cardsInHand));
             }
 
             _skipedTurnsInLine = 0;
-            var endVariants = Enum.GetValues(typeof(EndVariant)).Cast<EndVariant>();
-            var endVariantsCasted = endVariants as EndVariant[] ?? endVariants.ToArray();
-            Field = new GameField(endVariantsCasted.ElementAt(_rnd.Next(endVariantsCasted.Length)));
+            var endVariants = Enum.GetValues(typeof(EndVariant)).Cast<EndVariant>().ToArray();
+            Field = new GameField(endVariants.ElementAt(_rnd.Next(endVariants.Length)));
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace SaboteurFoundation
                 return new UnacceptableActionResult();
 
             // теперь можно класть карту на поле
-            connector.Next = new GameCell(CellType.TUNNEL, outs.Select(cType => new Connector(cType)).ToHashSet(), tunnelCard.IsDeadlock);
+            connector.Next = new GameCell(CellType.Tunnel, outs.Select(cType => new Connector(cType)).ToHashSet(), tunnelCard.IsDeadlock);
             connector.Next.Outs.First(_out => _out.Type == Connector.FlipConnectorType(connector.Type)).Next = result; // добавляем обратную связь
 
             // если ещё не достигли финиша, то передаём ход следующем игроку
@@ -263,12 +263,12 @@ namespace SaboteurFoundation
                 foreach (var player in Players)
                 {
                     var variant = GameField.EndsCoordinates.First((pair => pair.Value.Item1 == xResult && pair.Value.Item2 == yResult)).Key;
-                    player.EndsStatuses[variant] = finish.Type == CellType.FAKE ? TargetStatus.FAKE : TargetStatus.REAL;
+                    player.EndsStatuses[variant] = finish.Type == CellType.Fake ? TargetStatus.Fake : TargetStatus.Real;
                 }
             }                
 
             // если нет реального золота, то передаём ход следующем игроку
-            if (finishes.All(finish => finish.Type != CellType.GOLD))
+            if (finishes.All(finish => finish.Type != CellType.Gold))
                 return new NewTurnResult(_NextPlayer());
             
             // если раунд был не последний, то начинаем новый
@@ -279,7 +279,7 @@ namespace SaboteurFoundation
                 {
                     CurrentPlayer.Gold += _popGoldHeap();
                     _NextPlayer();
-                    if (CurrentPlayer.Role == GameRole.BAD || (SkipLoosers && CurrentPlayer.Debufs.Count != 0))
+                    if (CurrentPlayer.Role == GameRole.Bad || (SkipLoosers && CurrentPlayer.Debufs.Count != 0))
                         _NextPlayer();
                 }
 
@@ -421,9 +421,9 @@ namespace SaboteurFoundation
         private TurnResult _ProcessPlayInvestigateAction(PlayInvestigateAction ia)
         {
             TurnResult result;
-            if (CurrentPlayer.EndsStatuses[ia.Variant] == TargetStatus.UNKNOW)
+            if (CurrentPlayer.EndsStatuses[ia.Variant] == TargetStatus.Unknow)
             {
-                CurrentPlayer.EndsStatuses[ia.Variant] = Field.Ends[ia.Variant].Type == CellType.GOLD ? TargetStatus.REAL : TargetStatus.FAKE;
+                CurrentPlayer.EndsStatuses[ia.Variant] = Field.Ends[ia.Variant].Type == CellType.Gold ? TargetStatus.Real : TargetStatus.Fake;
                 result = new NewTurnResult(_NextPlayer());
             }
             else
@@ -445,7 +445,7 @@ namespace SaboteurFoundation
             {
                 if (Round != RoundsInGame)
                 {
-                    var badBoys = Players.Where(p => p.Role == GameRole.BAD).ToArray();
+                    var badBoys = Players.Where(p => p.Role == GameRole.Bad).ToArray();
                     switch (badBoys.Length)
                     {
                         case 1:
@@ -569,9 +569,9 @@ namespace SaboteurFoundation
             {
                 var total = bads + goods;
                 var badChance = Convert.ToDouble(bads) / total;
-                var answer = rnd.NextDouble() < badChance ? GameRole.BAD : GameRole.GOOD;
+                var answer = rnd.NextDouble() < badChance ? GameRole.Bad : GameRole.Good;
                 yield return answer;
-                if (answer == GameRole.BAD) --bads; else --goods;
+                if (answer == GameRole.Bad) --bads; else --goods;
             }
         }
 
@@ -603,15 +603,15 @@ namespace SaboteurFoundation
                 (TunnelCard.FromOuts(up:true, down: true, isDeadLock: true), 1, 0, 0),
                 (new InvestigateCard(), 6, 0, 0),
                 (new CollapseCard(), 3, 0, 0),
-                (HealCard.FromEffect(Effect.TRUCK), 2, 0, 0),
-                (HealCard.FromEffect(Effect.PICK), 2, 0, 0),
-                (HealCard.FromEffect(Effect.LAMP), 2, 0, 0),
-                (HealAlternativeCard.FromEffect(Effect.PICK, Effect.TRUCK), 1, 0, 0),
-                (HealAlternativeCard.FromEffect(Effect.PICK, Effect.LAMP), 1, 0, 0),
-                (HealAlternativeCard.FromEffect(Effect.LAMP, Effect.TRUCK), 1, 0, 0),
-                (DebufCard.FromEffect(Effect.LAMP), 3, 0, 0),
-                (DebufCard.FromEffect(Effect.PICK), 3, 0, 0),
-                (DebufCard.FromEffect(Effect.TRUCK), 3, 0, 0)
+                (HealCard.FromEffect(Effect.Truck), 2, 0, 0),
+                (HealCard.FromEffect(Effect.Pick), 2, 0, 0),
+                (HealCard.FromEffect(Effect.Lamp), 2, 0, 0),
+                (HealAlternativeCard.FromEffect(Effect.Pick, Effect.Truck), 1, 0, 0),
+                (HealAlternativeCard.FromEffect(Effect.Pick, Effect.Lamp), 1, 0, 0),
+                (HealAlternativeCard.FromEffect(Effect.Lamp, Effect.Truck), 1, 0, 0),
+                (DebufCard.FromEffect(Effect.Lamp), 3, 0, 0),
+                (DebufCard.FromEffect(Effect.Pick), 3, 0, 0),
+                (DebufCard.FromEffect(Effect.Truck), 3, 0, 0)
             };
 
             while (allCardsCount != 0)

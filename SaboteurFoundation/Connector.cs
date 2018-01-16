@@ -24,13 +24,13 @@
         {
             switch (type)
             {
-                case ConnectorType.DOWN:
+                case ConnectorType.Down:
                     return 0;
-                case ConnectorType.UP:
+                case ConnectorType.Up:
                     return 0;
-                case ConnectorType.LEFT:
+                case ConnectorType.Left:
                     return -1;
-                case ConnectorType.RIGHT:
+                case ConnectorType.Right:
                     return 1;
                 default:
                     return 0;
@@ -41,13 +41,13 @@
         {
             switch (type)
             {
-                case ConnectorType.DOWN:
+                case ConnectorType.Down:
                     return -1;
-                case ConnectorType.UP:
+                case ConnectorType.Up:
                     return 1;
-                case ConnectorType.LEFT:
+                case ConnectorType.Left:
                     return 0;
-                case ConnectorType.RIGHT:
+                case ConnectorType.Right:
                     return 0;
                 default:
                     return 0;
@@ -58,14 +58,14 @@
         {
             switch (cType)
             {
-                case ConnectorType.DOWN:
-                    return ConnectorType.UP;
-                case ConnectorType.LEFT:
-                    return ConnectorType.RIGHT;
-                case ConnectorType.RIGHT:
-                    return ConnectorType.LEFT;
-                case ConnectorType.UP:
-                    return ConnectorType.DOWN;
+                case ConnectorType.Down:
+                    return ConnectorType.Up;
+                case ConnectorType.Left:
+                    return ConnectorType.Right;
+                case ConnectorType.Right:
+                    return ConnectorType.Left;
+                case ConnectorType.Up:
+                    return ConnectorType.Down;
                 default:
                     return cType;
             }

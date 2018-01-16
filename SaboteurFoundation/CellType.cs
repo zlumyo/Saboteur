@@ -2,6 +2,6 @@
 {
     public enum CellType
     {
-        START, GOLD, FAKE, TUNNEL
+        Start, Gold, Fake, Tunnel
     }
 }

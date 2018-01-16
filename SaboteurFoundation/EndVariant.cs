@@ -2,6 +2,6 @@
 {
     public enum EndVariant
     {
-        LEFT, CENTER, RIGHT
+        Left, Center, Right
     }
 }

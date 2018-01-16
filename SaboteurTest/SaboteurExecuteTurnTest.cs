@@ -50,9 +50,9 @@ namespace SaboteurTest
             var currentPlayer = _game.CurrentPlayer;
             var card = currentPlayer.Hand.Find(c => c is InvestigateCard) as InvestigateCard;
 
-            _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.CENTER));
+            _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.Center));
 
-            Assert.AreNotEqual(TargetStatus.UNKNOW, currentPlayer.EndsStatuses[EndVariant.CENTER], "New end's status has failed.");
+            Assert.AreNotEqual(TargetStatus.Unknow, currentPlayer.EndsStatuses[EndVariant.Center], "New end's status has failed.");
         }
 
         [TestMethod]
@@ -124,18 +124,18 @@ namespace SaboteurTest
         [TestMethod]
         public void BuildTunnelTest()
         {
-            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.RIGHT);
+            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
 
-            var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
+            var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.Right);
             Assert.IsNotNull(rightConnectorOfStart.Next, "Field's state has failed.");
-            var leftConnectorOfNext = rightConnectorOfStart.Next.Outs.First(c => c.Type == ConnectorType.LEFT);
+            var leftConnectorOfNext = rightConnectorOfStart.Next.Outs.First(c => c.Type == ConnectorType.Left);
             Assert.IsNotNull(leftConnectorOfNext.Next, "Double link is missed.");
         }
 
         [TestMethod]
         public void CollapseTunnelTest()
         {
-            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.RIGHT);
+            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
 
             while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
             {
@@ -146,7 +146,7 @@ namespace SaboteurTest
 
             _game.ExecuteTurn(new CollapseAction(collapseCard, 1, 0));
 
-            var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.RIGHT);
+            var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.Right);
             Assert.IsTrue(rightConnectorOfStart.Next.HasCollapsed, "Cell's state has failed.");
         }
 
@@ -158,7 +158,7 @@ namespace SaboteurTest
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
             
-            var turnResult = _game.ExecuteTurn(new PlayInvestigateAction(new InvestigateCard(), EndVariant.CENTER));
+            var turnResult = _game.ExecuteTurn(new PlayInvestigateAction(new InvestigateCard(), EndVariant.Center));
             
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
@@ -194,7 +194,7 @@ namespace SaboteurTest
         [TestMethod]
         public void CollapseAlreadyCollapsedTest()
         {
-            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.RIGHT);
+            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
             
             while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
             {
@@ -218,21 +218,21 @@ namespace SaboteurTest
         [TestMethod]
         public void CollapseExitTest()
         {
-            var direction = _game.Field.Ends.First(end => end.Value.Type == CellType.FAKE).Key;
+            var direction = _game.Field.Ends.First(end => end.Value.Type == CellType.Fake).Key;
             int xBase;
             switch (direction)
             {
-                case EndVariant.LEFT:
-                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.LEFT, true);
-                    Utils.BuildTunnelAt(_game, -1, 0, ConnectorType.LEFT);
+                case EndVariant.Left:
+                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Left, true);
+                    Utils.BuildTunnelAt(_game, -1, 0, ConnectorType.Left);
                     xBase = -2;
                     break;
-                case EndVariant.RIGHT:
-                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.LEFT, true);
-                    Utils.BuildTunnelAt(_game, -1, 0, ConnectorType.LEFT);
+                case EndVariant.Right:
+                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Left, true);
+                    Utils.BuildTunnelAt(_game, -1, 0, ConnectorType.Left);
                     xBase = 2;
                     break;
-                case EndVariant.CENTER:
+                case EndVariant.Center:
                     xBase = 0;
                     break;
                 default:
@@ -243,7 +243,7 @@ namespace SaboteurTest
             var yBase = 0;
             while (yBase != 8)
             {
-                Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.UP, true);
+                Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
                 yBase++;
             }        
             
@@ -347,14 +347,14 @@ namespace SaboteurTest
             var currentPlayer = _game.CurrentPlayer;
             var card = currentPlayer.Hand.Find(c => c is InvestigateCard) as InvestigateCard;
 
-            _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.CENTER)); 
+            _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.Center)); 
             
             while (_game.CurrentPlayer != currentPlayer)
             {
                 _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
             }
             
-            var turnResult = _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.CENTER));
+            var turnResult = _game.ExecuteTurn(new PlayInvestigateAction(card, EndVariant.Center));
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }

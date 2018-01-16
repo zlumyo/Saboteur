@@ -12,7 +12,7 @@ namespace SaboteurFoundation
         public HashSet<Effect> Debufs { get; }
         public Dictionary<EndVariant, TargetStatus> EndsStatuses { get; }
 
-        public Player(string name, GameRole role, Card[] hand)
+        public Player(string name, GameRole role, IEnumerable<Card> hand)
         {
             Name = name;
             Role = role;
@@ -23,7 +23,7 @@ namespace SaboteurFoundation
             EndsStatuses = new Dictionary<EndVariant, TargetStatus>(3);
             foreach (EndVariant endVariant in Enum.GetValues(typeof(EndVariant)))
             {
-                EndsStatuses.Add(endVariant, TargetStatus.UNKNOW);
+                EndsStatuses.Add(endVariant, TargetStatus.Unknow);
             }
         }
 
@@ -51,7 +51,7 @@ namespace SaboteurFoundation
         {
             foreach (EndVariant endVariant in Enum.GetValues(typeof(EndVariant)))
             {
-                EndsStatuses[endVariant] = TargetStatus.UNKNOW;
+                EndsStatuses[endVariant] = TargetStatus.Unknow;
             }
         }
     }

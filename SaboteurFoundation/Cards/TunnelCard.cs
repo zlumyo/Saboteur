@@ -14,10 +14,10 @@ namespace SaboteurFoundation.Cards
         public static TunnelCard FromOuts(bool up = false, bool right = false, bool down = false, bool left = false, bool isDeadLock = false)
         {
             var set = new HashSet<ConnectorType>(4);
-            if (up) set.Add(ConnectorType.UP);
-            if (right) set.Add(ConnectorType.RIGHT);
-            if (down) set.Add(ConnectorType.DOWN);
-            if (left) set.Add(ConnectorType.LEFT);
+            if (up) set.Add(ConnectorType.Up);
+            if (right) set.Add(ConnectorType.Right);
+            if (down) set.Add(ConnectorType.Down);
+            if (left) set.Add(ConnectorType.Left);
 
             if (set.Count == 0) throw new ArgumentOutOfRangeException("At least one must be true.");
             return new TunnelCard(set, isDeadLock);

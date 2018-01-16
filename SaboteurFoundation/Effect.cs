@@ -2,6 +2,6 @@
 {
     public enum Effect
     {
-        LAMP, PICK, TRUCK
+        Lamp, Pick, Truck
     }
 }

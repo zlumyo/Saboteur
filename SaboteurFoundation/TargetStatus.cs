@@ -2,6 +2,6 @@
 {
     public enum TargetStatus
     {
-        UNKNOW, REAL, FAKE
+        Unknow, Real, Fake
     }
 }

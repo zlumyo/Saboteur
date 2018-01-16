@@ -11,38 +11,38 @@ namespace SaboteurFoundation
 
         public static Dictionary<EndVariant, (int, int)> EndsCoordinates { get; } = new Dictionary<EndVariant, (int, int)>
         {
-            { EndVariant.LEFT, (-2, 8) },
-            { EndVariant.CENTER, (0, 8) },
-            { EndVariant.RIGHT, (2, 8) }
+            { EndVariant.Left, (-2, 8) },
+            { EndVariant.Center, (0, 8) },
+            { EndVariant.Right, (2, 8) }
         };
 
         public GameField(EndVariant endGold)
         {
-            var allConnectorTypes = Enum.GetValues(typeof(ConnectorType)).Cast<ConnectorType>();
-            Start = new GameCell(CellType.START, allConnectorTypes.Select(x => new Connector(x)).ToHashSet(), false);
+            var allConnectorTypes = Enum.GetValues(typeof(ConnectorType)).Cast<ConnectorType>().ToArray();
+            Start = new GameCell(CellType.Start, allConnectorTypes.Select(x => new Connector(x)).ToHashSet(), false);
 
             Ends = new Dictionary<EndVariant, GameCell>(3) {
                 {
-                    EndVariant.LEFT,
+                    EndVariant.Left,
                     new GameCell(
-                        EndVariant.LEFT == endGold ? CellType.GOLD : CellType.FAKE,
-                        new HashSet<Connector>(2) { new Connector(ConnectorType.RIGHT), new Connector(ConnectorType.DOWN) },
+                        EndVariant.Left == endGold ? CellType.Gold : CellType.Fake,
+                        new HashSet<Connector>(2) { new Connector(ConnectorType.Right), new Connector(ConnectorType.Down) },
                         false
                     )
                 },
                 {
-                    EndVariant.CENTER,
+                    EndVariant.Center,
                     new GameCell(
-                        EndVariant.CENTER == endGold ? CellType.GOLD : CellType.FAKE,
+                        EndVariant.Center == endGold ? CellType.Gold : CellType.Fake,
                         allConnectorTypes.Select(x => new Connector(x)).ToHashSet(),
                         false
                     )
                 },
                 {
-                    EndVariant.RIGHT,
+                    EndVariant.Right,
                     new GameCell(
-                        EndVariant.RIGHT == endGold ? CellType.GOLD : CellType.FAKE,
-                        new HashSet<Connector>(2) { new Connector(ConnectorType.LEFT), new Connector(ConnectorType.DOWN) },
+                        EndVariant.Right == endGold ? CellType.Gold : CellType.Fake,
+                        new HashSet<Connector>(2) { new Connector(ConnectorType.Left), new Connector(ConnectorType.Down) },
                         false
                     )
                 }

@@ -2,6 +2,6 @@
 {
     public enum ConnectorType
     {
-        UP, RIGHT, DOWN, LEFT
+        Up, Right, Down, Left
     }
 }

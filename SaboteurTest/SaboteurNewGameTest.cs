@@ -133,14 +133,14 @@ namespace SaboteurTest
         [TestMethod]
         public void CheckField()
         {
-            Assert.IsTrue(_game.Field.Start.Outs.Count == 4 && _game.Field.Start.Type == CellType.START, "Start cell is wrong.");
-            Assert.IsTrue(_game.Field.Ends.Count == 3 && _game.Field.Ends.Count(pair => pair.Value.Type == CellType.GOLD) == 1, "End cells are wrong.");
+            Assert.IsTrue(_game.Field.Start.Outs.Count == 4 && _game.Field.Start.Type == CellType.Start, "Start cell is wrong.");
+            Assert.IsTrue(_game.Field.Ends.Count == 3 && _game.Field.Ends.Count(pair => pair.Value.Type == CellType.Gold) == 1, "End cells are wrong.");
         }
 
         [TestMethod]
         public void CheckPlayers()
         {
-            Assert.IsTrue(_game.Players.All(p => p.EndsStatuses.All(s => s.Value == TargetStatus.UNKNOW) && p.Gold == 0 && p.Debufs.Count == 0), "Players' state is wrong.");
+            Assert.IsTrue(_game.Players.All(p => p.EndsStatuses.All(s => s.Value == TargetStatus.Unknow) && p.Gold == 0 && p.Debufs.Count == 0), "Players' state is wrong.");
         }
     }
 }
