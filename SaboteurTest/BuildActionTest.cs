@@ -219,5 +219,45 @@ namespace SaboteurTest
             
             Assert.IsTrue(_game.Players.All(p => p.EndsStatuses[direction] == TargetStatus.Fake));
         }
+        
+        [TestMethod]
+        public void AllNeighborsConnectedTest()
+        {
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var tunnelCard1 = _game.CurrentPlayer.Hand
+                    .Find(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Left) && !tc.Outs.Contains(ConnectorType.Up))
+                as TunnelCard;
+
+            _game.ExecuteTurn(new BuildAction(tunnelCard1, 0, 0, ConnectorType.Right));
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Down)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var tunnelCard2 = _game.CurrentPlayer.Hand
+                    .Find(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Down))
+                as TunnelCard;
+
+            _game.ExecuteTurn(new BuildAction(tunnelCard2, 0, 0, ConnectorType.Up));
+            
+            while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Down)) == 0)
+            {
+                _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            }
+
+            var tunnelCard3 = _game.CurrentPlayer.Hand
+                    .Find(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Down))
+                as TunnelCard;
+
+            _game.ExecuteTurn(new BuildAction(tunnelCard3, 1, 0, ConnectorType.Up));
+
+            var cellX0Y1 = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.Up).Next;
+            Assert.IsNotNull(cellX0Y1.Outs.First(c => c.Type == ConnectorType.Right).Next, "Nighbor didn't connected.");
+        }
     }
 }
