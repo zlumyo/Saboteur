@@ -251,23 +251,23 @@ namespace SaboteurFoundation
             var newCell = Field.PutNewTunnel(nextX, nextY, outs, tunnelCard.IsDeadlock);
             
             // если ещё не достигли финиша, то передаём ход следующем игроку
-            if (!Field.CheckFinishReached(newCell, nextX, nextY, out var finishes))
+            if (!Field.CheckFinishReached(newCell, out var finishes))
                 return new NewTurnResult(_NextPlayer()); // по умолчанию передаётся ход другому игроку
                              
             // переворачиваем финишные карты для всех игроков
-            foreach (var (finish, x, y) in finishes)
+            foreach (var finish in finishes)
             {
-                GameField.ConnectToFinish(newCell, nextX, nextY, finish, x); // и соединяем финиш с соседом
+                Field.ConnectFinish(finish); // и соединяем финиш с соседями
                 
                 foreach (var player in Players)
                 {
-                    var variant = GameField.EndsCoordinates.First(pair => pair.Value.Item1 == x && pair.Value.Item2 == y).Key;
+                    var variant = GameField.EndsCoordinates.First(pair => pair.Value.Item1 == finish.X && pair.Value.Item2 == finish.Y).Key;
                     player.EndsStatuses[variant] = finish.Type == CellType.Fake ? TargetStatus.Fake : TargetStatus.Real;
                 }
             }                
 
             // если нет реального золота, то передаём ход следующем игроку
-            if (finishes.All(finish => finish.Item1.Type != CellType.Gold))
+            if (finishes.All(finish => finish.Type != CellType.Gold))
                 return new NewTurnResult(_NextPlayer());
             
             // если раунд был не последний, то начинаем новый
