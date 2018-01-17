@@ -126,10 +126,8 @@ namespace SaboteurTest
         {
             Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
 
-            var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.Right);
-            Assert.IsNotNull(rightConnectorOfStart.Next, "Field's state has failed.");
-            var leftConnectorOfNext = rightConnectorOfStart.Next.Outs.First(c => c.Type == ConnectorType.Left);
-            Assert.IsNotNull(leftConnectorOfNext.Next, "Double link is missed.");
+            Assert.IsTrue(_game.Field.Start.Outs.TryGetValue(ConnectorType.Right, out var rightConnectorOfStart) && rightConnectorOfStart != null, "Field's state has failed.");
+            Assert.IsTrue(rightConnectorOfStart.Outs.TryGetValue(ConnectorType.Left, out var leftConnectorOfNext) && leftConnectorOfNext != null, "Double link is missed.");
         }
 
         [TestMethod]
@@ -146,8 +144,7 @@ namespace SaboteurTest
 
             _game.ExecuteTurn(new CollapseAction(collapseCard, 1, 0));
 
-            var rightConnectorOfStart = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.Right);
-            Assert.IsTrue(rightConnectorOfStart.Next.HasCollapsed, "Cell's state has failed.");
+            Assert.IsTrue(_game.Field.Start.Outs[ConnectorType.Right].HasCollapsed, "Cell's state has failed.");
         }
 
         [TestMethod]

@@ -203,8 +203,7 @@ namespace SaboteurFoundation
                 return new UnacceptableActionResult();
 
             // пытаемся найти на поле карту с указанной координатой
-            var watched = new HashSet<(int, int)>();
-            var (result, _, _) = _ScanField(Field.Start, 0, 0, ca.X, ca.Y, watched);
+            var result = Field.Scan(ca.X, ca.Y);
             if (result == null) // если таковой нет, то такой ход недопустим
                 return new UnacceptableActionResult();
 
@@ -230,38 +229,35 @@ namespace SaboteurFoundation
                 return new UnacceptableActionResult();
 
             // пытаемся найти на поле карту с указанной координатой
-            var watched = new HashSet<(int, int)>();
-            var (result, xResult, yResult) = _ScanField(Field.Start, 0, 0, ba.XNear, ba.YNear, watched);
+            var result = Field.Scan(ba.XNear, ba.YNear);
             if (result == null) // если таковой нет, то такой ход недопустим
                 return new UnacceptableActionResult();
 
             // если у найденной карты нет коннектора в искомую сторону, то такой ход недопустим
-            if (result.Outs.Count(_out => _out.Type == ba.SideOfNearCard) == 0)
+            if (!result.Outs.ContainsKey(ba.SideOfNearCard))
                 return new UnacceptableActionResult();
 
-            var connector = result.Outs.First(_out => _out.Type == ba.SideOfNearCard);
             // если нужный коннектор уже соединён с другой картой, то такой ход недопустим
-            if (connector.Next != null && !connector.Next.HasCollapsed)
+            if (!result.Outs.GetValueOrDefault(ba.SideOfNearCard)?.HasCollapsed ?? false)
                 return new UnacceptableActionResult();
 
             // если новая карта не подходит к нужному коннектору, то такой ход недопустим
-            if (!_CheckConnectors(connector.Type, tunnelCard.Outs, xResult, yResult, out var outs))
+            if (!_CheckConnectors(ba.SideOfNearCard, tunnelCard.Outs, result.X, result.Y, out var outs))
                 return new UnacceptableActionResult();
-
-            // теперь можно класть карту на поле
-            connector.Next = new GameCell(CellType.Tunnel, outs.Select(cType => new Connector(cType)).ToHashSet(), tunnelCard.IsDeadlock);
-            connector.Next.Outs.First(_out => _out.Type == Connector.FlipConnectorType(connector.Type)).Next = result; // добавляем обратную связь
-
-            var nextX = xResult + Connector.ConnectorTypeToDeltaX(connector.Type);
-            var nextY = yResult + Connector.ConnectorTypeToDeltaY(connector.Type);
+         
+            // теперь можно класть карту на поле   
+            var nextX = result.X + ba.SideOfNearCard.ToDeltaX();
+            var nextY = result.Y + ba.SideOfNearCard.ToDeltaY();
+            var newCell = Field.PutNewTunnel(nextX, nextY, outs, tunnelCard.IsDeadlock);
+            
             // если ещё не достигли финиша, то передаём ход следующем игроку
-            if (!Field.CheckFinishReached(connector.Next, nextX, nextY, out var finishes))
+            if (!Field.CheckFinishReached(newCell, nextX, nextY, out var finishes))
                 return new NewTurnResult(_NextPlayer()); // по умолчанию передаётся ход другому игроку
                              
             // переворачиваем финишные карты для всех игроков
             foreach (var (finish, x, y) in finishes)
             {
-                GameField.ConnectToFinish(connector.Next, nextX, nextY, finish, x); // и соединяем финиш с соседом
+                GameField.ConnectToFinish(newCell, nextX, nextY, finish, x); // и соединяем финиш с соседом
                 
                 foreach (var player in Players)
                 {
@@ -296,10 +292,11 @@ namespace SaboteurFoundation
             return new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
         }
 
-        private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, int x, int y, out HashSet<ConnectorType> realOuts)
+        private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, int x, int y,
+            out HashSet<ConnectorType> realOuts)
         {
             var flippedOuts = FlipOuts();
-            var flippedType = Connector.FlipConnectorType(type);
+            var flippedType = type.Flip();
 
             if (outs.Contains(flippedType))
             {
@@ -316,34 +313,16 @@ namespace SaboteurFoundation
             realOuts = null;
             return false;
 
-            HashSet<ConnectorType> FlipOuts() => outs.Select(Connector.FlipConnectorType).ToHashSet();
+            HashSet<ConnectorType> FlipOuts() => outs.Select(ct => ct.Flip()).ToHashSet();
 
             // ReSharper disable once ParameterTypeCanBeEnumerable.Local
             bool CheckNeighbors(HashSet<ConnectorType> cTypes)
             {
-                var watched = new HashSet<(int, int)>();
                 return cTypes.Where(_out => _out != flippedType).All(_out => {
-                    var (cell, _, _) = _ScanField(Field.Start, 0, 0, x + Connector.ConnectorTypeToDeltaX(_out), y + Connector.ConnectorTypeToDeltaY(_out), watched);
-                    return cell == null || cell.Outs.Count(cellOut => cellOut.Type == Connector.FlipConnectorType(_out)) == 1;
+                    var cell = Field.Scan(x + _out.ToDeltaX(), y + _out.ToDeltaY());
+                    return cell == null || cell.Outs.Count(cellOut => cellOut.Key == _out.Flip()) == 1;
                 });
             }
-        }
-
-        private static (GameCell, int, int) _ScanField(GameCell current, int xCurrent, int yCurrent, int xTarget, int yTarget, ISet<(int, int)> watched)
-        {
-            if (current.HasCollapsed) return (null, 0, 0);
-
-            if (xCurrent == xTarget && yCurrent == yTarget)
-                return (current, xCurrent, yCurrent);
-
-            watched.Add((xCurrent, yCurrent));
-            if (current.IsDeadlock)
-                return (null, 0, 0);
-
-            var temp = current.Outs.Where(_out => _out.Next != null && !watched.Contains((xCurrent + Connector.ConnectorTypeToDeltaX(_out.Type), yCurrent + Connector.ConnectorTypeToDeltaY(_out.Type))))
-                .Select(filtered => _ScanField(filtered.Next, xCurrent + Connector.ConnectorTypeToDeltaX(filtered.Type), yCurrent + Connector.ConnectorTypeToDeltaY(filtered.Type), xTarget, yTarget, watched))
-                .Where(result => result.Item1 != null).ToArray();
-            return temp.Length == 0 ? (null, 0, 0) : temp[0];
         }
 
         /// <summary>

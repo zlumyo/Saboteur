@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SaboteurFoundation;
 using SaboteurFoundation.Cards;
@@ -229,7 +230,7 @@ namespace SaboteurTest
             }
 
             var tunnelCard1 = _game.CurrentPlayer.Hand
-                    .Find(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Left) && !tc.Outs.Contains(ConnectorType.Up))
+                    .Find(c => c is TunnelCard tc && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up))
                 as TunnelCard;
 
             _game.ExecuteTurn(new BuildAction(tunnelCard1, 0, 0, ConnectorType.Right));
@@ -256,8 +257,8 @@ namespace SaboteurTest
 
             _game.ExecuteTurn(new BuildAction(tunnelCard3, 1, 0, ConnectorType.Up));
 
-            var cellX0Y1 = _game.Field.Start.Outs.First(c => c.Type == ConnectorType.Up).Next;
-            Assert.IsNotNull(cellX0Y1.Outs.First(c => c.Type == ConnectorType.Right).Next, "Nighbor didn't connected.");
+            var cellX0Y1 = _game.Field.Start.Outs[ConnectorType.Up];
+            Assert.IsNotNull(cellX0Y1.Outs.GetValueOrDefault(ConnectorType.Right), "Nighbor didn't connected.");
         }
     }
 }

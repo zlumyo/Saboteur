@@ -8,6 +8,7 @@ namespace SaboteurFoundation.Turn
         public int YNear { get; }
         public ConnectorType SideOfNearCard { get; }
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         public BuildAction(TunnelCard card, int xNear, int yNear, ConnectorType sideOfNearCard) : base(card)
         {
             XNear = xNear;

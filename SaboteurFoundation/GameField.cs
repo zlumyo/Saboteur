@@ -9,7 +9,8 @@ namespace SaboteurFoundation
         public GameCell Start { get; }
         public Dictionary<EndVariant, GameCell> Ends { get; }
 
-        public static Dictionary<EndVariant, (int, int)> EndsCoordinates { get; } = new Dictionary<EndVariant, (int, int)>
+        public static Dictionary<EndVariant, (int, int)> EndsCoordinates { get; } =
+            new Dictionary<EndVariant, (int, int)>
         {
             { EndVariant.Left, (-2, 8) },
             { EndVariant.Center, (0, 8) },
@@ -19,14 +20,15 @@ namespace SaboteurFoundation
         public GameField(EndVariant endGold)
         {
             var allConnectorTypes = Enum.GetValues(typeof(ConnectorType)).Cast<ConnectorType>().ToArray();
-            Start = new GameCell(CellType.Start, allConnectorTypes.Select(x => new Connector(x)).ToHashSet(), false);
+            Start = new GameCell(CellType.Start, 0, 0, allConnectorTypes, false);
 
             Ends = new Dictionary<EndVariant, GameCell>(3) {
                 {
                     EndVariant.Left,
                     new GameCell(
                         EndVariant.Left == endGold ? CellType.Gold : CellType.Fake,
-                        new HashSet<Connector>(2) { new Connector(ConnectorType.Right), new Connector(ConnectorType.Down) },
+                        EndsCoordinates[EndVariant.Left].Item1, EndsCoordinates[EndVariant.Left].Item2,
+                        new[] { ConnectorType.Right, ConnectorType.Down },
                         false
                     )
                 },
@@ -34,7 +36,8 @@ namespace SaboteurFoundation
                     EndVariant.Center,
                     new GameCell(
                         EndVariant.Center == endGold ? CellType.Gold : CellType.Fake,
-                        allConnectorTypes.Select(x => new Connector(x)).ToHashSet(),
+                        EndsCoordinates[EndVariant.Center].Item1, EndsCoordinates[EndVariant.Center].Item2,
+                        allConnectorTypes,
                         false
                     )
                 },
@@ -42,7 +45,8 @@ namespace SaboteurFoundation
                     EndVariant.Right,
                     new GameCell(
                         EndVariant.Right == endGold ? CellType.Gold : CellType.Fake,
-                        new HashSet<Connector>(2) { new Connector(ConnectorType.Left), new Connector(ConnectorType.Down) },
+                        EndsCoordinates[EndVariant.Right].Item1, EndsCoordinates[EndVariant.Right].Item2,
+                        new[] { ConnectorType.Left, ConnectorType.Down },
                         false
                     )
                 }
@@ -51,70 +55,107 @@ namespace SaboteurFoundation
 
         public bool CheckFinishReached(GameCell cell, int xCell, int yCell, out (GameCell, int, int)[] finishes)
         {
-            finishes = cell.Outs.Select(_out => (xCell + Connector.ConnectorTypeToDeltaX(_out.Type), yCell + Connector.ConnectorTypeToDeltaY(_out.Type)))
+            finishes = cell.Outs.Select(pair => (xCell + pair.Key.ToDeltaX(), yCell + pair.Key.ToDeltaY()))
                 .Where(pair => EndsCoordinates.ContainsValue(pair))
-                .Select(pair => (Ends[EndsCoordinates.First(p => p.Value.Item1 == pair.Item1 && p.Value.Item2 == pair.Item2).Key], pair.Item1, pair.Item2)).ToArray();
+                .Select(pair =>
+                    (Ends[EndsCoordinates.First(p => p.Value.Item1 == pair.Item1 && p.Value.Item2 == pair.Item2).Key],
+                    pair.Item1, pair.Item2))
+                .ToArray();
             return finishes.Length != 0;
         }
 
+        internal GameCell Scan(int xTarget, int yTarget)
+        {
+            var watched = new HashSet<(int, int)>();
+            return ScanHelper(Start, 0, 0, new List<(int,int)> { (xTarget, yTarget) }, watched).FirstOrDefault();
+        }
+        
+        private static GameCell[] ScanHelper(GameCell current, int xCurrent, int yCurrent,
+            ICollection<(int, int)> targets, ISet<(int, int)> watched)
+        {
+            if (current.HasCollapsed) return new GameCell[]{};
+
+            if (targets.Contains((xCurrent, yCurrent)))
+            {
+                targets.Remove((xCurrent, yCurrent));
+                watched.Add((xCurrent, yCurrent));
+                return new[]{current};
+            }
+                
+            watched.Add((xCurrent, yCurrent));
+            if (current.IsDeadlock)
+                return new GameCell[]{};
+
+            return current.Outs
+                // фильтруем соседей, которые уже просмотрены 
+                .Where(pair => pair.Value != null &&
+                               !watched.Contains((xCurrent + pair.Key.ToDeltaX(), yCurrent + pair.Key.ToDeltaY())))
+                // сканируем соседей
+                .Select(pair => ScanHelper(pair.Value, xCurrent + pair.Key.ToDeltaX(), yCurrent + pair.Key.ToDeltaY(),
+                    targets, watched))
+                // фильтруем пустые результаты сканов
+                .Where(result => result.Length != 0).SelectMany(i => i).ToArray();
+        }
+
+        internal GameCell PutNewTunnel(int x, int y, HashSet<ConnectorType> outs, bool isDeadlock)
+        {
+            var newCell = new GameCell(CellType.Tunnel, x, y, outs, isDeadlock);
+            
+            foreach (var neighbor in FindNighbors(x, y))
+            {
+                ConnectorType fromNeighborToNew;
+                
+                if (neighbor.X == x)
+                {
+                    fromNeighborToNew = neighbor.Y < y ? ConnectorType.Up : ConnectorType.Down;
+                }
+                else
+                {
+                    fromNeighborToNew = neighbor.X < x ? ConnectorType.Right : ConnectorType.Left;
+                }
+
+                var fromNewToNeighbor = fromNeighborToNew.Flip();
+                
+                // от соседа к новому тоннелю
+                neighbor.Outs[fromNeighborToNew] = newCell;
+                neighbor.Outs[fromNeighborToNew].Outs[fromNewToNeighbor] = neighbor; // обратная связь
+            }
+
+            return newCell;
+        }
+
+        private IEnumerable<GameCell> FindNighbors(int x, int y)
+        {
+            var watched = new HashSet<(int, int)>();
+            var targets = new List<(int,int)> { (x+1, y), (x-1, y), (x, y+1), (x, y-1) };
+            return ScanHelper(Start, 0, 0, targets, watched);
+        }
+        
         internal static void ConnectToFinish(GameCell pretender, int pX, int pY, GameCell finish, int fX)
-        {   
+        {
+            ConnectorType fromPretenderToFinish;
+            
             switch (pY)
             {
                 case 7:
-                {
-                    var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Up);
-                    if (maybeConnector == null) return;
-                    maybeConnector.Next = finish;
-                    finish.Outs.First(c => c.Type == ConnectorType.Down).Next = pretender;
+                    fromPretenderToFinish = ConnectorType.Up;
                     break;
-                }
                 case 9:
-                {
-                    var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Down);
-                    if (maybeConnector == null) return;
-                    maybeConnector.Next = finish;
-                    finish.Outs.First(c => c.Type == ConnectorType.Up).Next = pretender;
+                    fromPretenderToFinish = ConnectorType.Down;
                     break;
-                }
                 default:
                     if (pX == -1 || pX == 3)
-                    {
-                        if (fX != 0)
-                        {
-                            var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Left);
-                            if (maybeConnector == null) return;
-                            maybeConnector.Next = finish;
-                            finish.Outs.First(c => c.Type == ConnectorType.Right).Next = pretender;
-                        }
-                        else
-                        {
-                            var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Right);
-                            if (maybeConnector == null) return;
-                            maybeConnector.Next = finish;
-                            finish.Outs.First(c => c.Type == ConnectorType.Left).Next = pretender;
-                        }               
-                    }
+                        fromPretenderToFinish = fX != 0 ? ConnectorType.Left : ConnectorType.Right;
                     else
-                    {
-                        if (fX != 0)
-                        {
-                            var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Right);
-                            if (maybeConnector == null) return;
-                            maybeConnector.Next = finish;
-                            finish.Outs.First(c => c.Type == ConnectorType.Left).Next = pretender;
-                        }
-                        else
-                        {
-                            var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Left);
-                            if (maybeConnector == null) return;
-                            maybeConnector.Next = finish;
-                            finish.Outs.First(c => c.Type == ConnectorType.Right).Next = pretender;
-                        } 
-                    }
+                        fromPretenderToFinish = fX != 0 ? ConnectorType.Right : ConnectorType.Left;
 
                     break;
             }
+            
+            var fromFinishToPretender = fromPretenderToFinish.Flip();
+            
+            if (pretender.Outs.TryAdd(fromPretenderToFinish, finish))
+                finish.Outs[fromFinishToPretender] = pretender;
         }
     }
 }
