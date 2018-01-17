@@ -224,12 +224,30 @@ namespace SaboteurTest
             {
                 case EndVariant.Left:
                     Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Left, true);
-                    Utils.BuildTunnelAt(_game, -1, 0, ConnectorType.Left);
+                    
+                    while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up)) == 0)
+                    {
+                        _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+                    }
+                    var tunnelCardLeft = _game.CurrentPlayer.Hand
+                            .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up))
+                        as TunnelCard;
+                    _game.ExecuteTurn(new BuildAction(tunnelCardLeft, -1, 0, ConnectorType.Left));
+                    
                     xBase = -2;
                     break;
                 case EndVariant.Right:
                     Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Left, true);
-                    Utils.BuildTunnelAt(_game, -1, 0, ConnectorType.Left);
+                    
+                    while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up)) == 0)
+                    {
+                        _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+                    }
+                    var tunnelCardRight = _game.CurrentPlayer.Hand
+                            .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up))
+                        as TunnelCard;
+                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, -1, 0, ConnectorType.Right));
+                    
                     xBase = 2;
                     break;
                 case EndVariant.Center:
@@ -241,11 +259,11 @@ namespace SaboteurTest
             }
 
             var yBase = 0;
-            while (yBase != 8)
+            while (yBase != 7)
             {
                 Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
                 yBase++;
-            }        
+            }
             
             while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
             {
@@ -253,7 +271,7 @@ namespace SaboteurTest
             }
             
             var collapseCard = _game.CurrentPlayer.Hand.Find(c => c is CollapseCard) as CollapseCard;
-            var turnResult = _game.ExecuteTurn(new CollapseAction(collapseCard, xBase, yBase));
+            var turnResult = _game.ExecuteTurn(new CollapseAction(collapseCard, xBase, 8));
             
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }

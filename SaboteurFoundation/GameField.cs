@@ -49,11 +49,72 @@ namespace SaboteurFoundation
             };
         }
 
-        public bool CheckFinishReached(GameCell cell, int xCell, int yCell, out GameCell[] finishes)
+        public bool CheckFinishReached(GameCell cell, int xCell, int yCell, out (GameCell, int, int)[] finishes)
         {
-            finishes = cell.Outs.Select(_out => (xCell + Connector.ConnectorTypeToDeltaX(_out.Type), yCell + Connector.ConnectorTypeToDeltaY(_out.Type))).Where(pair => EndsCoordinates.ContainsValue(pair))
-                .Select(pair => Ends[EndsCoordinates.First(p => p.Value.Item1 == pair.Item1 && p.Value.Item2 == pair.Item2).Key]).ToArray();
+            finishes = cell.Outs.Select(_out => (xCell + Connector.ConnectorTypeToDeltaX(_out.Type), yCell + Connector.ConnectorTypeToDeltaY(_out.Type)))
+                .Where(pair => EndsCoordinates.ContainsValue(pair))
+                .Select(pair => (Ends[EndsCoordinates.First(p => p.Value.Item1 == pair.Item1 && p.Value.Item2 == pair.Item2).Key], pair.Item1, pair.Item2)).ToArray();
             return finishes.Length != 0;
+        }
+
+        internal static void ConnectToFinish(GameCell pretender, int pX, int pY, GameCell finish, int fX)
+        {   
+            switch (pY)
+            {
+                case 7:
+                {
+                    var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Up);
+                    if (maybeConnector == null) return;
+                    maybeConnector.Next = finish;
+                    finish.Outs.First(c => c.Type == ConnectorType.Down).Next = pretender;
+                    break;
+                }
+                case 9:
+                {
+                    var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Down);
+                    if (maybeConnector == null) return;
+                    maybeConnector.Next = finish;
+                    finish.Outs.First(c => c.Type == ConnectorType.Up).Next = pretender;
+                    break;
+                }
+                default:
+                    if (pX == -1 || pX == 3)
+                    {
+                        if (fX != 0)
+                        {
+                            var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Left);
+                            if (maybeConnector == null) return;
+                            maybeConnector.Next = finish;
+                            finish.Outs.First(c => c.Type == ConnectorType.Right).Next = pretender;
+                        }
+                        else
+                        {
+                            var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Right);
+                            if (maybeConnector == null) return;
+                            maybeConnector.Next = finish;
+                            finish.Outs.First(c => c.Type == ConnectorType.Left).Next = pretender;
+                        }               
+                    }
+                    else
+                    {
+                        if (fX != 0)
+                        {
+                            var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Right);
+                            if (maybeConnector == null) return;
+                            maybeConnector.Next = finish;
+                            finish.Outs.First(c => c.Type == ConnectorType.Left).Next = pretender;
+                        }
+                        else
+                        {
+                            var maybeConnector = pretender.Outs.FirstOrDefault(c => c.Type == ConnectorType.Left);
+                            if (maybeConnector == null) return;
+                            maybeConnector.Next = finish;
+                            finish.Outs.First(c => c.Type == ConnectorType.Right).Next = pretender;
+                        } 
+                    }
+
+                    break;
+            }
         }
     }
 }

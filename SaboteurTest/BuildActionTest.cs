@@ -166,5 +166,58 @@ namespace SaboteurTest
 
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
+
+        [TestMethod]
+        public void FakeFinishOpening()
+        {
+            var direction = _game.Field.Ends.First(end => end.Value.Type == CellType.Fake).Key;
+            int xBase;
+            switch (direction)
+            {
+                case EndVariant.Left:
+                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Left, true);
+                    
+                    while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up)) == 0)
+                    {
+                        _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+                    }
+                    var tunnelCardLeft = _game.CurrentPlayer.Hand
+                            .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up))
+                        as TunnelCard;
+                    _game.ExecuteTurn(new BuildAction(tunnelCardLeft, -1, 0, ConnectorType.Left));
+                    
+                    xBase = -2;
+                    break;
+                case EndVariant.Right:
+                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right, true);
+                    
+                    while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up)) == 0)
+                    {
+                        _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+                    }
+                    var tunnelCardRight = _game.CurrentPlayer.Hand
+                            .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up))
+                        as TunnelCard;
+                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, -1, 0, ConnectorType.Right));
+                    
+                    xBase = 2;
+                    break;
+                case EndVariant.Center:
+                    xBase = 0;
+                    break;
+                default:
+                    xBase = 0;
+                    break;
+            }
+
+            var yBase = 0;
+            while (yBase != 7)
+            {
+                Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
+                yBase++;
+            }
+            
+            Assert.IsTrue(_game.Players.All(p => p.EndsStatuses[direction] == TargetStatus.Fake));
+        }
     }
 }

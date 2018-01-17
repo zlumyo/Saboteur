@@ -16,12 +16,12 @@ namespace SaboteurTest
         {          
             var flippedSide = Connector.FlipConnectorType(side);
             // ReSharper disable once PossibleNullReferenceException
-            while (builder != null ^ game.CurrentPlayer == builder ^ game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && tc.Outs.Contains(flippedSide) && (!withOppositeSide || tc.Outs.Contains(side))) == 0)
+            while (builder != null ^ game.CurrentPlayer == builder ^ game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(flippedSide) && (!withOppositeSide || tc.Outs.Contains(side))) == 0)
             {
                 game.ExecuteTurn(new SkipAction(game.CurrentPlayer.Hand.First()));
             }
 
-            var tunnelCard = game.CurrentPlayer.Hand.Find(c => c is TunnelCard tc && tc.Outs.Contains(flippedSide)) as TunnelCard;
+            var tunnelCard = game.CurrentPlayer.Hand.Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(flippedSide) && (!withOppositeSide || tc.Outs.Contains(side))) as TunnelCard;
 
             return game.ExecuteTurn(new BuildAction(tunnelCard, x, y, side));
         }

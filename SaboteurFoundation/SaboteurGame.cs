@@ -252,23 +252,26 @@ namespace SaboteurFoundation
             connector.Next = new GameCell(CellType.Tunnel, outs.Select(cType => new Connector(cType)).ToHashSet(), tunnelCard.IsDeadlock);
             connector.Next.Outs.First(_out => _out.Type == Connector.FlipConnectorType(connector.Type)).Next = result; // добавляем обратную связь
 
+            var nextX = xResult + Connector.ConnectorTypeToDeltaX(connector.Type);
+            var nextY = yResult + Connector.ConnectorTypeToDeltaY(connector.Type);
             // если ещё не достигли финиша, то передаём ход следующем игроку
-            if (!Field.CheckFinishReached(connector.Next, xResult + Connector.ConnectorTypeToDeltaX(connector.Type),
-                yResult + Connector.ConnectorTypeToDeltaY(connector.Type), out var finishes))
+            if (!Field.CheckFinishReached(connector.Next, nextX, nextY, out var finishes))
                 return new NewTurnResult(_NextPlayer()); // по умолчанию передаётся ход другому игроку
-            
+                             
             // переворачиваем финишные карты для всех игроков
-            foreach (var finish in finishes)
+            foreach (var (finish, x, y) in finishes)
             {
+                GameField.ConnectToFinish(connector.Next, nextX, nextY, finish, x); // и соединяем финиш с соседом
+                
                 foreach (var player in Players)
                 {
-                    var variant = GameField.EndsCoordinates.First((pair => pair.Value.Item1 == xResult && pair.Value.Item2 == yResult)).Key;
+                    var variant = GameField.EndsCoordinates.First(pair => pair.Value.Item1 == x && pair.Value.Item2 == y).Key;
                     player.EndsStatuses[variant] = finish.Type == CellType.Fake ? TargetStatus.Fake : TargetStatus.Real;
                 }
             }                
 
             // если нет реального золота, то передаём ход следующем игроку
-            if (finishes.All(finish => finish.Type != CellType.Gold))
+            if (finishes.All(finish => finish.Item1.Type != CellType.Gold))
                 return new NewTurnResult(_NextPlayer());
             
             // если раунд был не последний, то начинаем новый
