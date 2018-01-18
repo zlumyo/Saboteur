@@ -274,7 +274,7 @@ namespace SaboteurFoundation
                 {
                     CurrentPlayer.Gold += _popGoldHeap();
                     _NextPlayer();
-                    if (CurrentPlayer.Role == GameRole.Bad || (SkipLoosers && CurrentPlayer.Debufs.Count != 0))
+                    if (CurrentPlayer.Role == GameRole.Bad || SkipLoosers && CurrentPlayer.Debufs.Count != 0)
                         _NextPlayer();
                 }
 
@@ -423,7 +423,7 @@ namespace SaboteurFoundation
             {
                 if (Round != RoundsInGame)
                 {
-                    var badBoys = Players.Where(p => p.Role == GameRole.Bad).ToArray();
+                    var badBoys = Players.Where(p => !(p.Role == GameRole.Good || SkipLoosers && p.Debufs.Count != 0)).ToArray();
                     switch (badBoys.Length)
                     {
                         case 1:

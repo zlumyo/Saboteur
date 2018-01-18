@@ -16,7 +16,7 @@ namespace SaboteurTest
         [TestInitialize]
         public void TestInit()
         {
-            _game = SaboteurGame.NewGame(false, false, MinPlayers);
+            _game = SaboteurGame.NewGame(false, true, MinPlayers);
         }
         
         [TestMethod]
@@ -216,6 +216,30 @@ namespace SaboteurTest
             
             
             Assert.AreNotEqual(0, _game.Players.Count(p => p.Gold != 0));
+        }
+        
+        [TestMethod]
+        public void DebufedDoesntGetGoldTest()
+        {      
+            while (_game.Players.Count(p => p.Role == GameRole.Bad) == 0)
+            {
+                _game = SaboteurGame.NewGame(false, true, MinPlayers);
+            }
+
+            foreach (var player in _game.Players)
+            {
+                if (player.Role == GameRole.Bad)
+                    player.Debufs.Add(Effect.Lamp);
+            }
+            
+            TurnResult turnResult;
+            do
+            {
+                turnResult = _game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First()));
+            } while (!(turnResult is NewRoundResult));
+            
+            
+            Assert.AreEqual(0, _game.Players.Count(p => p.Gold != 0));
         }
     }
 }
