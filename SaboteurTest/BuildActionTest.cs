@@ -199,7 +199,7 @@ namespace SaboteurTest
                     var tunnelCardRight = _game.CurrentPlayer.Hand
                             .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up))
                         as TunnelCard;
-                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, -1, 0, ConnectorType.Right));
+                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, 1, 0, ConnectorType.Right));
                     
                     xBase = 2;
                     break;
@@ -292,7 +292,7 @@ namespace SaboteurTest
                     var tunnelCardRight = _game.CurrentPlayer.Hand
                             .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up))
                         as TunnelCard;
-                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, -1, 0, ConnectorType.Right));
+                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, 1, 0, ConnectorType.Right));
                     
                     xBase = 2;
                     break;
