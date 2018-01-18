@@ -198,10 +198,6 @@ namespace SaboteurFoundation
             if (ca.X == 0 && ca.Y == 0)
                 return new UnacceptableActionResult();
 
-            // Золотые жилы разрушать нельзя.
-            if (GameField.EndsCoordinates.Any(pair => pair.Value.Item1 == ca.X && pair.Value.Item2 == ca.Y))
-                return new UnacceptableActionResult();
-
             // пытаемся найти на поле карту с указанной координатой
             var result = Field.Scan(ca.X, ca.Y);
             if (result == null) // если таковой нет, то такой ход недопустим
