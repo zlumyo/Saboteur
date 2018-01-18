@@ -142,6 +142,7 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(_game.ExecuteTurn(new SkipAction(_game.CurrentPlayer.Hand.First())),
                 typeof(EndGameResult),
                 "Execute turn after end of game has failed");
+            Assert.IsTrue(_game.IsGameEnded, "IsGameEnded state has failed");
         }
         
         [TestMethod]
@@ -202,6 +203,11 @@ namespace SaboteurTest
         [TestMethod]
         public void BadBoysGetGoldTest()
         {
+            while (_game.Players.Count(p => p.Role == GameRole.Bad) == 0)
+            {
+                _game = SaboteurGame.NewGame(false, false, MinPlayers);
+            }
+            
             TurnResult turnResult;
             do
             {
@@ -209,7 +215,7 @@ namespace SaboteurTest
             } while (!(turnResult is NewRoundResult));
             
             
-            Assert.AreEqual(_game.Players.Count(p => p.Role == GameRole.Bad), _game.Players.Count(p => p.Gold != 0));
+            Assert.AreNotEqual(0, _game.Players.Count(p => p.Gold != 0));
         }
     }
 }

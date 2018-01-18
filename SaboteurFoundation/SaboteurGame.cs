@@ -432,6 +432,7 @@ namespace SaboteurFoundation
                                 _popGoldHeapWhile(4);
                                 p.Gold += 4;
                             }
+
                             break;
                         case 2:
                         case 3:
@@ -440,13 +441,15 @@ namespace SaboteurFoundation
                                 _popGoldHeapWhile(3);
                                 p.Gold += 3;
                             }
+
                             break;
-                        case 4:
+                        default:
                             foreach (var p in badBoys)
                             {
                                 _popGoldHeapWhile(2);
                                 p.Gold += 2;
                             }
+                            
                             break;
                     }
 
