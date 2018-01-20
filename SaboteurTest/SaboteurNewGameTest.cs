@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace SaboteurTest
 {
+    /// <summary>
+    /// Тесты сценариев связанных с началом игры.
+    /// </summary>
     [TestClass]
     public class SaboteurNewGameTest
     {
@@ -29,6 +32,9 @@ namespace SaboteurTest
             _gameSkipLoosers = SaboteurGame.NewGame(false, true, MinPlayers);
         }
 
+        /// <summary>
+        /// Проверка включения правила "без тупиков".
+        /// </summary>
         [TestMethod]
         public void WithoutDeadLocksValue()
         {
@@ -37,6 +43,9 @@ namespace SaboteurTest
             Assert.IsFalse(_gameSkipLoosers.WithoutDeadlocks, "SkipLoosers game failed.");
         }
 
+        /// <summary>
+        /// Проверка включения правила "дебафнутые остаются без золота".
+        /// </summary>
         [TestMethod]
         public void SkipLoosersValue()
         {
@@ -45,6 +54,9 @@ namespace SaboteurTest
             Assert.IsTrue(_gameSkipLoosers.SkipLoosers, "SkipLoosers game failed.");
         }
 
+        /// <summary>
+        /// Начальный раунд - 1.
+        /// </summary>
         [TestMethod]
         public void RoundValue()
         {
@@ -53,6 +65,9 @@ namespace SaboteurTest
             Assert.AreEqual(1, _gameSkipLoosers.Round, "SkipLoosers game failed.");
         }
 
+        /// <summary>
+        /// Все игроки попали в список участников игры.
+        /// </summary>
         [TestMethod]
         public void PlayersList()
         {
@@ -61,6 +76,9 @@ namespace SaboteurTest
             CollectionAssert.AreEqual(MinPlayers, _gameSkipLoosers.Players.Select(p => p.Name).ToArray());
         }
 
+        /// <summary>
+        /// Последний в списке игроков ходит первым.
+        /// </summary>
         [TestMethod]
         public void CurrentPlayerValue()
         {
@@ -70,6 +88,10 @@ namespace SaboteurTest
             Assert.AreEqual(expected, _gameSkipLoosers.CurrentPlayer.Name, "SkipLoosers game failed.");
         }
 
+        /// <summary>
+        /// Проверка невозможности с количеством игроков меньше или больше допустимого.
+        /// </summary>
+        /// <param name="players"></param>
         [DataTestMethod]
         [DataRow(TooLessPlayers)]
         [DataRow(TooMuchPlayers)]
@@ -82,6 +104,10 @@ namespace SaboteurTest
             );
         }
 
+        /// <summary>
+        /// Верное количество золотых самородков: 16 по 1, 8 по 2, 4 по 3.
+        /// </summary>
+        /// <param name="value"></param>
         [DataTestMethod]
         [DataRow(1)]
         [DataRow(2)]
@@ -92,6 +118,9 @@ namespace SaboteurTest
             Assert.AreEqual(16 / Convert.ToInt32(Math.Pow(2, value-1)), groups[value] / value, $"{value}'s is failed");
         }
 
+        /// <summary>
+        /// Проверка правильности генерации колоды.
+        /// </summary>
         [TestMethod]
         public void CheckGenerateDeck()
         {
@@ -115,6 +144,9 @@ namespace SaboteurTest
             Assert.AreEqual(9, debufCount, "Debuf count is failed.");
         }
 
+        /// <summary>
+        /// Проверка правильности рук игроков.
+        /// </summary>
         [TestMethod]
         public void CheckHands()
         {
@@ -130,6 +162,9 @@ namespace SaboteurTest
             Assert.AreEqual(32, high.Players.Sum(p => p.Hand.Count), "Total count of card in hands is failed (4 cards in hand).");
         }
 
+        /// <summary>
+        /// Проверка игрового поля.
+        /// </summary>
         [TestMethod]
         public void CheckField()
         {
@@ -137,6 +172,9 @@ namespace SaboteurTest
             Assert.IsTrue(_game.Field.Ends.Count == 3 && _game.Field.Ends.Count(pair => pair.Value.Type == CellType.Gold) == 1, "End cells are wrong.");
         }
 
+        /// <summary>
+        /// Проверка знания игроков о финишных картах.
+        /// </summary>
         [TestMethod]
         public void CheckPlayers()
         {

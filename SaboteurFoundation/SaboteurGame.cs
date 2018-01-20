@@ -502,7 +502,7 @@ namespace SaboteurFoundation
                 previous = result;
             }
             var lastEnd = sumsByCount[sumsByCount.Length - 1];
-            sumsByCount[sumsByCount.Length - 1] = (lastEnd.Item1, lastEnd.Item2, lastEnd.Item3, 1d);
+            sumsByCount[sumsByCount.Length - 1] = (lastEnd.Key, lastEnd.Item2, lastEnd.Item3, 1d);
 
             var sample = _rnd.NextDouble();
             var (key, _, _ ,_) = sumsByCount.First(quartet => quartet.Item3 <= sample && sample < quartet.Item4);

@@ -6,6 +6,9 @@ using SaboteurFoundation.Turn;
 
 namespace SaboteurTest
 {
+    /// <summary>
+    /// Тесты сценариев связанных с окончанием раунда и/или игры.
+    /// </summary>
     [TestClass]
     public class SaboteurEndGameTest
     {
@@ -19,6 +22,9 @@ namespace SaboteurTest
             _game = SaboteurGame.NewGame(false, true, MinPlayers);
         }
         
+        /// <summary>
+        /// Проверка состояния игры по завершении раунда.
+        /// </summary>
         [TestMethod]
         public void NextRoundTest()
         {
@@ -79,6 +85,9 @@ namespace SaboteurTest
                 "Players' end statuses has failed");
         }
         
+        /// <summary>
+        /// Проверка сотояния игры по завершении всех раундов.
+        /// </summary>
         [TestMethod]
         public void EndOfGameTest()
         {
@@ -145,6 +154,9 @@ namespace SaboteurTest
             Assert.IsTrue(_game.IsGameEnded, "IsGameEnded state has failed");
         }
         
+        /// <summary>
+        /// Проверка распределения золота при победе "хороших парней".
+        /// </summary>
         [TestMethod]
         public void GoodBoysGetGoldTest()
         {
@@ -200,6 +212,9 @@ namespace SaboteurTest
             Assert.AreEqual(28-_game.Players.Count, _game.GoldHeap.Count);
         }
         
+        /// <summary>
+        /// Проверка распределения золота при победе "плохих парней".
+        /// </summary>
         [TestMethod]
         public void BadBoysGetGoldTest()
         {
@@ -218,6 +233,9 @@ namespace SaboteurTest
             Assert.AreNotEqual(0, _game.Players.Count(p => p.Gold != 0));
         }
         
+        /// <summary>
+        /// Проверка отсутствия золота у игроков под дебафом(-ами) при включении соответствующего правила.
+        /// </summary>
         [TestMethod]
         public void DebufedDoesntGetGoldTest()
         {      

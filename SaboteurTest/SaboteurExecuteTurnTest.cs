@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace SaboteurTest
 {
+    /// <summary>
+    /// Тесты ходов всеми картами.
+    /// </summary>
     [TestClass]
     public class SaboteurExecuteTurnTest
     {
@@ -20,6 +23,9 @@ namespace SaboteurTest
             _game = SaboteurGame.NewGame(false, false, MinPlayers);
         }
 
+        /// <summary>
+        /// Пропуск хода.
+        /// </summary>
         [TestMethod]
         public void SkipTurnTest()
         {
@@ -39,6 +45,9 @@ namespace SaboteurTest
             Assert.AreEqual(expectedCardCount, currentPlayer.Hand.Count(c => c.Equals(expectedCard)), "New card's count has failed.");
         }
 
+        /// <summary>
+        /// Карта "подсмотреть золотую жилу".
+        /// </summary>
         [TestMethod]
         public void InvestigateFinishTest()
         {
@@ -55,6 +64,9 @@ namespace SaboteurTest
             Assert.AreNotEqual(TargetStatus.Unknow, currentPlayer.EndsStatuses[EndVariant.Center], "New end's status has failed.");
         }
 
+        /// <summary>
+        /// Карта "поломать что-то".
+        /// </summary>
         [TestMethod]
         public void DebufPlayerTest()
         {
@@ -71,6 +83,9 @@ namespace SaboteurTest
             Assert.IsTrue(card != null && currentPlayer.Debufs.Contains(card.Debuf) && currentPlayer.Debufs.Count == 1, "Debufs' state has failed.");
         }
 
+        /// <summary>
+        /// Карта "починить что-то".
+        /// </summary>
         [TestMethod]
         public void HealPlayerTest()
         {
@@ -96,6 +111,9 @@ namespace SaboteurTest
             Assert.IsTrue(player1.Debufs.Count == 0, "Debufs' state has failed.");
         }
 
+        /// <summary>
+        /// Карта "починить что-то из двух".
+        /// </summary>
         [TestMethod]
         public void AlternativeHealPlayerTest()
         {
@@ -121,6 +139,9 @@ namespace SaboteurTest
             Assert.IsTrue(player1.Debufs.Count == 0, "Debufs' state has failed.");
         }
 
+        /// <summary>
+        /// Карта "построить туннель".
+        /// </summary>
         [TestMethod]
         public void BuildTunnelTest()
         {
@@ -130,6 +151,9 @@ namespace SaboteurTest
             Assert.IsTrue(rightConnectorOfStart.Outs.TryGetValue(ConnectorType.Left, out var leftConnectorOfNext) && leftConnectorOfNext != null, "Double link is missed.");
         }
 
+        /// <summary>
+        /// Карта "обрушить туннель".
+        /// </summary>
         [TestMethod]
         public void CollapseTunnelTest()
         {
@@ -147,6 +171,9 @@ namespace SaboteurTest
             Assert.IsTrue(_game.Field.Start.Outs[ConnectorType.Right].HasCollapsed, "Cell's state has failed.");
         }
 
+        /// <summary>
+        /// Попытка использовать карту, которой нет в руке.
+        /// </summary>
         [TestMethod]
         public void MissedCardTest()
         {
@@ -160,6 +187,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Попытка обрушить "вход" на игровом поле.
+        /// </summary>
         [TestMethod]
         public void CollapseStartTest()
         {
@@ -174,6 +204,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Попытка обрушить несуществующий туннель.
+        /// </summary>
         [TestMethod]
         public void CollapseNonexistingTest()
         {
@@ -188,6 +221,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Попытка обрушить уже обрушенный туннель.
+        /// </summary>
         [TestMethod]
         public void CollapseAlreadyCollapsedTest()
         {
@@ -212,6 +248,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Попытка поломать у игрока один и тот же инструмент дважды.
+        /// </summary>
         [TestMethod]
         public void DebufAlreadyDebufedTest()
         {
@@ -238,6 +277,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Попытка починить поломку не той картой.
+        /// </summary>
         [TestMethod]
         public void HealWrongDebufTest()
         {
@@ -264,6 +306,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Попытка починить поломку не той картой с альтернативой.
+        /// </summary>
         [TestMethod]
         public void AlternateHealWrongDebufTest()
         {
@@ -290,6 +335,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Попытка посмотреть золотую жилу, которая уже известна.
+        /// </summary>
         [TestMethod]
         public void InvestigateAlreadyInvestigatedTest()
         {

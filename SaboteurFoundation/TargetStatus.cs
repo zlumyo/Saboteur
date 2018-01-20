@@ -1,7 +1,12 @@
 ﻿namespace SaboteurFoundation
 {
+    /// <summary>
+    /// Состония золотой жилы, которые видят пользователи.
+    /// </summary>
     public enum TargetStatus
-    {
-        Unknow, Real, Fake
+    {    
+        Unknow, // Неизвестно - в начале игры
+        Real,   // Настоящее золото
+        Fake    // Фальшивое золото
     }
 }

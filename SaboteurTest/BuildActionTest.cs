@@ -7,6 +7,9 @@ using SaboteurFoundation.Turn;
 
 namespace SaboteurTest
 {
+    /// <summary>
+    /// Тесты ситуаций возникающих при строительстве туннелей.
+    /// </summary>
     [TestClass]
     public class BuildActionTest
     {
@@ -20,6 +23,9 @@ namespace SaboteurTest
             _game = SaboteurGame.NewGame(false, false, MinPlayers);
         }
         
+        /// <summary>
+        /// Проверка невозможности строительства при наличии дебафа у игрока.
+        /// </summary>
         [TestMethod]
         public void BanBuildingWhenDebufedTest()
         {
@@ -38,6 +44,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Проверка невозможности построить тупик при включении соответствующего правила.
+        /// </summary>
         [TestMethod]
         public void BanDeadlocksWhenWithoutDeadlocksTest()
         {
@@ -56,6 +65,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Проверка невозможности построить туннель в клетке, рядом с которой нет построек.
+        /// </summary>
         [TestMethod]
         public void PreventBuildNearNothingTest()
         {
@@ -64,6 +76,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Проверка невозможности построить туннель в клетке, которая уже занята.
+        /// </summary>
         [TestMethod]
         public void PreventBuildWhereAlreadyBuiltTest()
         {
@@ -73,6 +88,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Проверка невозможности построить туннель в клетке, рядом с которой нет подходящих соединений.
+        /// </summary>
         [TestMethod]
         public void PreventBuildWithLackOfConnectorTest()
         {
@@ -101,6 +119,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
         
+        /// <summary>
+        /// Проверка возможности построить туннель, если он подходит при переворачивании.
+        /// </summary>
         [TestMethod]
         public void AllowBuildWithFlipTest()
         {
@@ -129,6 +150,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(NewTurnResult));
         }
         
+        /// <summary>
+        /// Проверка невозможности построить туннель в случае неподходящих "соседей".
+        /// </summary>
         [TestMethod]
         public void PreventBuildWithWrongNeighborsTest()
         {
@@ -168,6 +192,9 @@ namespace SaboteurTest
             Assert.IsInstanceOfType(turnResult, typeof(UnacceptableActionResult));
         }
 
+        /// <summary>
+        /// Проверка открытия ложного золота для всех игроков при его достижении.
+        /// </summary>
         [TestMethod]
         public void FakeFinishOpening()
         {
@@ -221,6 +248,9 @@ namespace SaboteurTest
             Assert.IsTrue(_game.Players.All(p => p.EndsStatuses[direction] == TargetStatus.Fake));
         }
         
+        /// <summary>
+        /// Проверка наличия всех соединений со всеми соседями, при успешной постройке туннеля.
+        /// </summary>
         [TestMethod]
         public void AllNeighborsConnectedTest()
         {
@@ -261,6 +291,9 @@ namespace SaboteurTest
             Assert.IsNotNull(cellX0Y1.Outs.GetValueOrDefault(ConnectorType.Right), "Nighbor didn't connected.");
         }
         
+        /// <summary>
+        /// Проверка наличия всех соединений с соседями, при открытии фейкового золота.
+        /// </summary>
         [TestMethod]
         public void ConnectNeighborsOfFinishTest()
         {
