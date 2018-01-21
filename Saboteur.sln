@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaboteurFoundation", "SaboteurFoundation\SaboteurFoundation.csproj", "{C7385AC2-4A22-44E0-A256-924F1F9A2132}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SaboteurFoundation", "SaboteurFoundation\SaboteurFoundation.csproj", "{C7385AC2-4A22-44E0-A256-924F1F9A2132}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaboteurTest", "SaboteurTest\SaboteurTest.csproj", "{160717B8-468F-4C88-A4AB-0708195AD2E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SaboteurTest", "SaboteurTest\SaboteurTest.csproj", "{160717B8-468F-4C88-A4AB-0708195AD2E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaboteurServer", "SaboteurServer\SaboteurServer.csproj", "{154E2952-29CA-47DA-A4AF-D13E396B0898}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,22 @@ Global
 		{160717B8-468F-4C88-A4AB-0708195AD2E1}.Release|x64.Build.0 = Release|Any CPU
 		{160717B8-468F-4C88-A4AB-0708195AD2E1}.Release|x86.ActiveCfg = Release|Any CPU
 		{160717B8-468F-4C88-A4AB-0708195AD2E1}.Release|x86.Build.0 = Release|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Debug|ARM.Build.0 = Debug|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Debug|x64.Build.0 = Debug|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Debug|x86.Build.0 = Debug|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Release|Any CPU.Build.0 = Release|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Release|ARM.ActiveCfg = Release|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Release|ARM.Build.0 = Release|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Release|x64.ActiveCfg = Release|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Release|x64.Build.0 = Release|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Release|x86.ActiveCfg = Release|Any CPU
+		{154E2952-29CA-47DA-A4AF-D13E396B0898}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
