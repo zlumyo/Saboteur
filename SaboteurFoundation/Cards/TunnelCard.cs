@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace SaboteurFoundation.Cards
 {
+    /// <summary>
+    /// Карта постройки туннеля.
+    /// </summary>
     public class TunnelCard : Card
     {
         private TunnelCard(HashSet<ConnectorType> outs, bool isDeadlock)
@@ -11,6 +14,15 @@ namespace SaboteurFoundation.Cards
             IsDeadlock = isDeadlock;
         }
 
+        /// <summary>
+        /// Создаёт карту постройки туннеля с заданными параметрами.
+        /// </summary>
+        /// <param name="up">Будет ли верхний проход?</param>
+        /// <param name="right">Будет ли правый проход?</param>
+        /// <param name="down">Будет ли нижний проход?</param>
+        /// <param name="left">Будет ли левый проход?</param>
+        /// <param name="isDeadLock">Это будет тупик?</param>
+        /// <returns>Новая карта постройки туннеля.</returns>
         public static TunnelCard FromOuts(bool up = false, bool right = false, bool down = false, bool left = false, bool isDeadLock = false)
         {
             var set = new HashSet<ConnectorType>(4);
@@ -28,7 +40,13 @@ namespace SaboteurFoundation.Cards
             return other is TunnelCard tc && this.IsDeadlock == tc.IsDeadlock && this.Outs.SetEquals(tc.Outs);
         }
 
+        /// <summary>
+        /// Проходы.
+        /// </summary>
         public HashSet<ConnectorType> Outs { get; }
+        /// <summary>
+        /// Флаг тупика.
+        /// </summary>
         public bool IsDeadlock { get; }
     }
 }
