@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SaboteurFoundation;
 using SaboteurFoundation.Cards;
@@ -33,7 +34,7 @@ namespace SaboteurTest
             switch (direction)
             {
                 case EndVariant.Left:
-                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Left, true);
+                    Utils.BuildTunnelAt(_game, -1, 0, new HashSet<ConnectorType> { ConnectorType.Left, ConnectorType.Right });
                     
                     while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up)) == 0)
                     {
@@ -42,12 +43,12 @@ namespace SaboteurTest
                     var tunnelCardLeft = _game.CurrentPlayer.Hand
                             .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up))
                         as TunnelCard;
-                    _game.ExecuteTurn(new BuildAction(tunnelCardLeft, -1, 0, ConnectorType.Left));
+                    _game.ExecuteTurn(new BuildAction(tunnelCardLeft, -2, 0));
                     
                     xBase = -2;
                     break;
                 case EndVariant.Right:
-                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right, true);
+                    Utils.BuildTunnelAt(_game, 1, 0, new HashSet<ConnectorType> { ConnectorType.Left, ConnectorType.Right });
                     
                     while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up)) == 0)
                     {
@@ -56,7 +57,7 @@ namespace SaboteurTest
                     var tunnelCardRight = _game.CurrentPlayer.Hand
                             .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up))
                         as TunnelCard;
-                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, 1, 0, ConnectorType.Right));
+                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, 2, 0));
                     
                     xBase = 2;
                     break;
@@ -68,14 +69,14 @@ namespace SaboteurTest
                     break;
             }
 
-            var yBase = 0;
-            while (yBase != 6)
+            var yBase = 1;
+            while (yBase != 7)
             {
-                Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
+                Utils.BuildTunnelAt(_game, xBase, yBase, new HashSet<ConnectorType> { ConnectorType.Up, ConnectorType.Down });
                 yBase++;
             }
             
-            var turnResult = Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
+            var turnResult = Utils.BuildTunnelAt(_game, xBase, yBase, new HashSet<ConnectorType> { ConnectorType.Up, ConnectorType.Down });
             
             Assert.IsInstanceOfType(turnResult, typeof(NewRoundResult), "TurnResult has failed");
             Assert.AreEqual(2, _game.Round, "Round count has failed");
@@ -100,7 +101,7 @@ namespace SaboteurTest
                 switch (direction)
                 {
                     case EndVariant.Left:
-                        Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Left, true);
+                        Utils.BuildTunnelAt(_game, -1, 0, new HashSet<ConnectorType> { ConnectorType.Left, ConnectorType.Right });
                         
                         while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up)) == 0)
                         {
@@ -109,12 +110,12 @@ namespace SaboteurTest
                         var tunnelCardLeft = _game.CurrentPlayer.Hand
                                 .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up))
                             as TunnelCard;
-                        _game.ExecuteTurn(new BuildAction(tunnelCardLeft, -1, 0, ConnectorType.Left));
+                        _game.ExecuteTurn(new BuildAction(tunnelCardLeft, -2, 0));
                         
                         xBase = -2;
                         break;
                     case EndVariant.Right:
-                        Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right, true);
+                        Utils.BuildTunnelAt(_game, 1, 0, new HashSet<ConnectorType> { ConnectorType.Right, ConnectorType.Left });
                         
                         while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up)) == 0)
                         {
@@ -123,7 +124,7 @@ namespace SaboteurTest
                         var tunnelCardRight = _game.CurrentPlayer.Hand
                                 .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up))
                             as TunnelCard;
-                        _game.ExecuteTurn(new BuildAction(tunnelCardRight, 1, 0, ConnectorType.Right));
+                        _game.ExecuteTurn(new BuildAction(tunnelCardRight, 2, 0));
                         
                         xBase = 2;
                         break;
@@ -135,14 +136,14 @@ namespace SaboteurTest
                         break;
                 }
     
-                var yBase = 0;
-                while (yBase != 6)
+                var yBase = 1;
+                while (yBase != 7)
                 {
-                    Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
+                    Utils.BuildTunnelAt(_game, xBase, yBase, new HashSet<ConnectorType> { ConnectorType.Up, ConnectorType.Down });
                     yBase++;
                 }
                 
-                turnResult = Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
+                turnResult = Utils.BuildTunnelAt(_game, xBase, yBase, new HashSet<ConnectorType> { ConnectorType.Up, ConnectorType.Down });
             }
             
                      
@@ -165,7 +166,7 @@ namespace SaboteurTest
             switch (direction)
             {
                 case EndVariant.Left:
-                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Left, true);
+                    Utils.BuildTunnelAt(_game, -1, 0, new HashSet<ConnectorType> { ConnectorType.Left, ConnectorType.Right });
                     
                     while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up)) == 0)
                     {
@@ -174,12 +175,12 @@ namespace SaboteurTest
                     var tunnelCardLeft = _game.CurrentPlayer.Hand
                             .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Right) && tc.Outs.Contains(ConnectorType.Up))
                         as TunnelCard;
-                    _game.ExecuteTurn(new BuildAction(tunnelCardLeft, -1, 0, ConnectorType.Left));
+                    _game.ExecuteTurn(new BuildAction(tunnelCardLeft, -2, 0));
                     
                     xBase = -2;
                     break;
                 case EndVariant.Right:
-                    Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right, true);
+                    Utils.BuildTunnelAt(_game, 1, 0, new HashSet<ConnectorType> { ConnectorType.Right, ConnectorType.Left });
                     
                     while (_game.CurrentPlayer.Hand.Count(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up)) == 0)
                     {
@@ -188,7 +189,7 @@ namespace SaboteurTest
                     var tunnelCardRight = _game.CurrentPlayer.Hand
                             .Find(c => c is TunnelCard tc && !tc.IsDeadlock && tc.Outs.Contains(ConnectorType.Left) && tc.Outs.Contains(ConnectorType.Up))
                         as TunnelCard;
-                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, 1, 0, ConnectorType.Right));
+                    _game.ExecuteTurn(new BuildAction(tunnelCardRight, 2, 0));
                     
                     xBase = 2;
                     break;
@@ -200,14 +201,14 @@ namespace SaboteurTest
                     break;
             }
 
-            var yBase = 0;
-            while (yBase != 6)
+            var yBase = 1;
+            while (yBase != 7)
             {
-                Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
+                Utils.BuildTunnelAt(_game, xBase, yBase, new HashSet<ConnectorType> { ConnectorType.Up, ConnectorType.Down });
                 yBase++;
             }
             
-            Utils.BuildTunnelAt(_game, xBase, yBase, ConnectorType.Up, true);
+            Utils.BuildTunnelAt(_game, xBase, yBase, new HashSet<ConnectorType> { ConnectorType.Up, ConnectorType.Down });
             
             Assert.AreEqual(28-_game.Players.Count, _game.GoldHeap.Count);
         }

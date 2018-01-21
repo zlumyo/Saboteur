@@ -4,16 +4,14 @@ namespace SaboteurFoundation.Turn
 {
     public class BuildAction : TurnAction
     {
-        public int XNear { get; }
-        public int YNear { get; }
-        public ConnectorType SideOfNearCard { get; }
+        public int X { get; }
+        public int Y { get; }
 
         // ReSharper disable once SuggestBaseTypeForParameter
-        public BuildAction(TunnelCard card, int xNear, int yNear, ConnectorType sideOfNearCard) : base(card)
+        public BuildAction(TunnelCard card, int x, int y) : base(card)
         {
-            XNear = xNear;
-            YNear = yNear;
-            SideOfNearCard = sideOfNearCard;
+            X = x;
+            Y = y;
         }
     }
 }

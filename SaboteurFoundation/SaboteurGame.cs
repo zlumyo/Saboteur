@@ -220,31 +220,19 @@ namespace SaboteurFoundation
 
             var tunnelCard = ba.CardToAct as TunnelCard;
             // если это игра без тупиков, то такой ход недопустим
-            // ReSharper disable once PossibleNullReferenceException
             if (tunnelCard.IsDeadlock && WithoutDeadlocks)
                 return new UnacceptableActionResult();
 
-            // пытаемся найти на поле карту с указанной координатой
-            var result = Field.Scan(ba.XNear, ba.YNear);
-            if (result == null) // если таковой нет, то такой ход недопустим
-                return new UnacceptableActionResult();
-
-            // если у найденной карты нет коннектора в искомую сторону, то такой ход недопустим
-            if (!result.Outs.ContainsKey(ba.SideOfNearCard))
-                return new UnacceptableActionResult();
-
-            // если нужный коннектор уже соединён с другой картой, то такой ход недопустим
-            if (!result.Outs.GetValueOrDefault(ba.SideOfNearCard)?.HasCollapsed ?? false)
+            // если в данном месте уже есть туннель, то такой ход недопустим
+            if (!(Field.Scan(ba.X, ba.Y) is null))
                 return new UnacceptableActionResult();
 
             // если новая карта не подходит к нужному коннектору, то такой ход недопустим
-            if (!_CheckConnectors(ba.SideOfNearCard, tunnelCard.Outs, result.X, result.Y, out var outs))
+            if (!_CheckConnectors(tunnelCard.Outs, ba.X, ba.Y, out var outs))
                 return new UnacceptableActionResult();
          
             // теперь можно класть карту на поле   
-            var nextX = result.X + ba.SideOfNearCard.ToDeltaX();
-            var nextY = result.Y + ba.SideOfNearCard.ToDeltaY();
-            var newCell = Field.PutNewTunnel(nextX, nextY, outs, tunnelCard.IsDeadlock);
+            var newCell = Field.PutNewTunnel(ba.X, ba.Y, outs, tunnelCard.IsDeadlock);
             
             // если ещё не достигли финиша, то передаём ход следующем игроку
             if (!Field.CheckFinishReached(newCell, out var finishes))
@@ -288,36 +276,63 @@ namespace SaboteurFoundation
             return new EndGameResult(Players.Where(p => p.Gold == Players.Max(x => x.Gold)).ToArray());
         }
 
-        private bool _CheckConnectors(ConnectorType type, HashSet<ConnectorType> outs, int x, int y,
-            out HashSet<ConnectorType> realOuts)
+        /// <summary>
+        /// Проверка соседей клетки для будущего туннеля.
+        /// </summary>
+        /// <param name="outs">Коннекторы будущего туннеля.</param>
+        /// <param name="x">X-координата будущего туннеля.</param>
+        /// <param name="y">Y-координата будущего туннеля.</param>
+        /// <param name="realOuts">Выходные коннекторы, которые будут реально использоваться для будущего туннеля.</param>
+        /// <returns>Возвращает true, если данная координата подходит под будущий туннель.</returns>
+        private bool _CheckConnectors(HashSet<ConnectorType> outs, int x, int y, out ISet<ConnectorType> realOuts)
         {
-            var flippedOuts = FlipOuts();
-            var flippedType = type.Flip();
-
-            if (outs.Contains(flippedType))
+            if (CheckNeighbors(outs))
             {
                 realOuts = outs;
-                return CheckNeighbors(realOuts);
+                return true;
             }
 
-            if (flippedOuts.Contains(flippedType))
+            var flippedOuts = FlipOuts();
+            if (CheckNeighbors(flippedOuts))
             {
                 realOuts = flippedOuts;
-                return CheckNeighbors(realOuts);
+                return true;
             }
 
             realOuts = null;
             return false;
 
             HashSet<ConnectorType> FlipOuts() => outs.Select(ct => ct.Flip()).ToHashSet();
-
-            // ReSharper disable once ParameterTypeCanBeEnumerable.Local
-            bool CheckNeighbors(HashSet<ConnectorType> cTypes)
+         
+            bool CheckNeighbors(HashSet<ConnectorType> testingOuts)
             {
-                return cTypes.Where(_out => _out != flippedType).All(_out => {
-                    var cell = Field.Scan(x + _out.ToDeltaX(), y + _out.ToDeltaY());
-                    return cell == null || cell.Outs.Count(cellOut => cellOut.Key == _out.Flip()) == 1;
-                });
+                var neighbors = Field.FindNighbors(x, y)
+                    .Where(neighbor =>
+                    {
+                        ConnectorType cType;
+
+                        if (neighbor.X == x)
+                            cType = neighbor.Y < y ? ConnectorType.Up : ConnectorType.Down;
+                        else
+                            cType = neighbor.X < x ? ConnectorType.Right : ConnectorType.Left;
+
+                        return neighbor.Outs.ContainsKey(cType) || testingOuts.Contains(cType.Flip());
+                    })
+                    .ToArray();
+                if (neighbors.Length == 0) return false;
+
+                return neighbors
+                    .All(neighbor =>
+                    {
+                        ConnectorType cType;
+
+                        if (neighbor.X == x)
+                            cType = neighbor.Y < y ? ConnectorType.Up : ConnectorType.Down;
+                        else
+                            cType = neighbor.X < x ? ConnectorType.Right : ConnectorType.Left;
+
+                        return true ^ neighbor.Outs.ContainsKey(cType) ^ testingOuts.Contains(cType.Flip());
+                    });
             }
         }
 

@@ -58,7 +58,22 @@ namespace SaboteurFoundation
             {
                 targets.Remove((xCurrent, yCurrent));
                 watched.Add((xCurrent, yCurrent));
-                return new[]{current};
+                var result = new[] { current };
+
+                if (current.IsDeadlock)
+                    return result;
+                else
+                    return result.Concat(
+                        current.Outs
+                            // фильтруем соседей, которые уже просмотрены 
+                            .Where(pair => pair.Value != null &&
+                                           !watched.Contains((xCurrent + pair.Key.ToDeltaX(), yCurrent + pair.Key.ToDeltaY())))
+                            // сканируем соседей
+                            .Select(pair => ScanHelper(pair.Value, xCurrent + pair.Key.ToDeltaX(), yCurrent + pair.Key.ToDeltaY(),
+                                targets, watched))
+                            // фильтруем пустые результаты сканов
+                            .Where(r => r.Length != 0).SelectMany(i => i)
+                        ).ToArray();
             }
                 
             watched.Add((xCurrent, yCurrent));
@@ -76,7 +91,7 @@ namespace SaboteurFoundation
                 .Where(result => result.Length != 0).SelectMany(i => i).ToArray();
         }
 
-        internal GameCell PutNewTunnel(int x, int y, HashSet<ConnectorType> outs, bool isDeadlock)
+        internal GameCell PutNewTunnel(int x, int y, ISet<ConnectorType> outs, bool isDeadlock)
         {
             var newCell = new GameCell(CellType.Tunnel, x, y, outs, isDeadlock);
             
@@ -95,15 +110,18 @@ namespace SaboteurFoundation
 
                 var fromNewToNeighbor = fromNeighborToNew.Flip();
                 
-                // от соседа к новому тоннелю
-                neighbor.Outs[fromNeighborToNew] = newCell;
-                neighbor.Outs[fromNeighborToNew].Outs[fromNewToNeighbor] = neighbor; // обратная связь
+                if (neighbor.Outs.ContainsKey(fromNeighborToNew))
+                {                  
+                    neighbor.Outs[fromNeighborToNew] = newCell; // от соседа к новому тоннелю
+                    neighbor.Outs[fromNeighborToNew].Outs[fromNewToNeighbor] = neighbor; // обратная связь
+                }
+                
             }
 
             return newCell;
         }
 
-        private IEnumerable<GameCell> FindNighbors(int x, int y)
+        internal IEnumerable<GameCell> FindNighbors(int x, int y)
         {
             var watched = new HashSet<(int, int)>();
             var targets = new List<(int,int)> { (x+1, y), (x-1, y), (x, y+1), (x, y-1) };
@@ -135,7 +153,7 @@ namespace SaboteurFoundation
             
                 var fromFinishToPretender = fromPretenderToFinish.Flip();
             
-                if (neighbor.Outs.TryAdd(fromPretenderToFinish, finish))
+                if (neighbor.Outs.ContainsKey(fromPretenderToFinish))
                     finish.Outs[fromFinishToPretender] = neighbor;
             }         
         }

@@ -145,7 +145,7 @@ namespace SaboteurTest
         [TestMethod]
         public void BuildTunnelTest()
         {
-            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
+            Utils.BuildTunnelAt(_game, 1, 0);
 
             Assert.IsTrue(_game.Field.Start.Outs.TryGetValue(ConnectorType.Right, out var rightConnectorOfStart) && rightConnectorOfStart != null, "Field's state has failed.");
             Assert.IsTrue(rightConnectorOfStart.Outs.TryGetValue(ConnectorType.Left, out var leftConnectorOfNext) && leftConnectorOfNext != null, "Double link is missed.");
@@ -157,7 +157,7 @@ namespace SaboteurTest
         [TestMethod]
         public void CollapseTunnelTest()
         {
-            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
+            Utils.BuildTunnelAt(_game, 1, 0);
 
             while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
             {
@@ -227,7 +227,7 @@ namespace SaboteurTest
         [TestMethod]
         public void CollapseAlreadyCollapsedTest()
         {
-            Utils.BuildTunnelAt(_game, 0, 0, ConnectorType.Right);
+            Utils.BuildTunnelAt(_game, 1, 0);
             
             while (_game.CurrentPlayer.Hand.Count(c => c is CollapseCard) == 0)
             {
