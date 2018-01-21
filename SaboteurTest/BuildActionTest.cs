@@ -37,7 +37,7 @@ namespace SaboteurTest
             var currentPlayer = _game.CurrentPlayer;
             var card = currentPlayer.Hand.Find(c => c is DebufCard) as DebufCard;
 
-            _game.ExecuteTurn(new PlayDebufAction(card, currentPlayer));
+            _game.ExecuteTurn(new DebufAction(card, currentPlayer));
 
             var turnResult = Utils.BuildTunnelAtBy(_game, 1, 0, builder: currentPlayer);
 

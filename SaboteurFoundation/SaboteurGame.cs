@@ -164,16 +164,16 @@ namespace SaboteurFoundation
                 case SkipAction _:
                     result = _ProcessSkipAction();
                     break;
-                case PlayInvestigateAction ia:
+                case InvestigateAction ia:
                     result = _ProcessPlayInvestigateAction(ia);
                     break;
-                case PlayDebufAction da:
+                case DebufAction da:
                     result = _ProcessPlayDebufAction(da);
                     break;
-                case PlayBufAction ba:
+                case HealAction ba:
                     result = _ProcessPlayBufAction(ba);
                     break;
-                case PlayBufAlternativeAction baa:
+                case HealAlternativeAction baa:
                     result = _ProcessPlayBufAlternativeAction(baa);
                     break;
                 case CollapseAction ca:
@@ -341,10 +341,10 @@ namespace SaboteurFoundation
         /// </summary>
         /// <param name="baa">Parameters of action.</param>
         /// <returns>Result of turn.</returns>
-        private TurnResult _ProcessPlayBufAlternativeAction(PlayBufAlternativeAction baa)
+        private TurnResult _ProcessPlayBufAlternativeAction(HealAlternativeAction baa)
         {
             TurnResult result;
-            var playerToBufAlt = Players.First(x => x == baa.PlayerToBuf);
+            var playerToBufAlt = Players.First(x => x == baa.PlayerToHeal);
             var healAltCard = baa.CardToAct as HealAlternativeCard;
             if (healAltCard != null && playerToBufAlt.Debufs.Contains(healAltCard.HealAlternative1))
             {
@@ -369,10 +369,10 @@ namespace SaboteurFoundation
         /// </summary>
         /// <param name="ba">Parameters of action.</param>
         /// <returns>Result of turn.</returns>
-        private TurnResult _ProcessPlayBufAction(PlayBufAction ba)
+        private TurnResult _ProcessPlayBufAction(HealAction ba)
         {
             TurnResult result;
-            var playerToBuf = Players.First(x => x == ba.PlayerToBuf);
+            var playerToBuf = Players.First(x => x == ba.PlayerToHeal);
             if (ba.CardToAct is HealCard healCard && playerToBuf.Debufs.Contains(healCard.Heal))
             {
                 playerToBuf.Debufs.Remove(healCard.Heal);
@@ -390,7 +390,7 @@ namespace SaboteurFoundation
         /// </summary>
         /// <param name="da">Parameters of action.</param>
         /// <returns>Result of turn.</returns>
-        private TurnResult _ProcessPlayDebufAction(PlayDebufAction da)
+        private TurnResult _ProcessPlayDebufAction(DebufAction da)
         {
             TurnResult result;
             var playerToDebuf = Players.First(x => x == da.PlayerToDebuf);
@@ -411,7 +411,7 @@ namespace SaboteurFoundation
         /// </summary>
         /// <param name="ia">Parameters of action.</param>
         /// <returns>Result of turn.</returns>
-        private TurnResult _ProcessPlayInvestigateAction(PlayInvestigateAction ia)
+        private TurnResult _ProcessPlayInvestigateAction(InvestigateAction ia)
         {
             TurnResult result;
             if (CurrentPlayer.EndsStatuses[ia.Variant] == TargetStatus.Unknow)
