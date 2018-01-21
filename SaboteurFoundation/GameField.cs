@@ -4,11 +4,23 @@ using System.Linq;
 
 namespace SaboteurFoundation
 {
+    /// <summary>
+    /// Игровое поле.
+    /// </summary>
     public class GameField
     {
+        /// <summary>
+        /// Стартовая ячейка с координатой (0,0).
+        /// </summary>
         public GameCell Start { get; }
+        /// <summary>
+        /// Золотые жилы.
+        /// </summary>
         public Dictionary<EndVariant, GameCell> Ends { get; }
 
+        /// <summary>
+        /// Координаты золотых жил, используемые при создании поля.
+        /// </summary>
         public static Dictionary<EndVariant, (int, int)> EndsCoordinates { get; } =
             new Dictionary<EndVariant, (int, int)>
         {
@@ -17,6 +29,10 @@ namespace SaboteurFoundation
             { EndVariant.Right, (2, 8) }
         };
 
+        /// <summary>
+        /// Создаёт поле с указанием места реального золота.
+        /// </summary>
+        /// <param name="endGold">Место реального золота.</param>
         public GameField(EndVariant endGold)
         {
             var allConnectorTypes = Enum.GetValues(typeof(ConnectorType)).Cast<ConnectorType>().ToArray();
@@ -33,7 +49,7 @@ namespace SaboteurFoundation
             );
         }
 
-        public bool CheckFinishReached(GameCell cell, out GameCell[] finishes)
+        internal bool CheckFinishReached(GameCell cell, out GameCell[] finishes)
         {
             finishes = cell.Outs
                 .Select(pair => (cell.X + pair.Key.ToDeltaX(), cell.Y + pair.Key.ToDeltaY()))

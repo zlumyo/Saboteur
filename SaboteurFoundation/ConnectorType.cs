@@ -1,11 +1,23 @@
 ﻿namespace SaboteurFoundation
 {
+    /// <summary>
+    /// Тип прохода в туннеле.
+    /// </summary>
     public enum ConnectorType
     {
         Up, Right, Down, Left
     }
     
+    /// <summary>
+    /// Расширения для типов прохода.
+    /// </summary>
     public static class ConnectorTypeExtensions {
+
+        /// <summary>
+        /// Трансформация типа прохода на противоположный.
+        /// </summary>
+        /// <param name="cType">Тип прохода.</param>
+        /// <returns>Инвертирвоанный тип прохода.</returns>
         public static ConnectorType Flip(this ConnectorType cType) {
             switch (cType)
             {
@@ -22,6 +34,11 @@
             }
         }
         
+        /// <summary>
+        /// Получить дельту координаты X по типу хода.
+        /// </summary>
+        /// <param name="type">Тип хода.</param>
+        /// <returns>Смещение координаты.</returns>
         public static int ToDeltaX(this ConnectorType type)
         {
             switch (type)
@@ -39,6 +56,11 @@
             }
         }
 
+        /// <summary>
+        /// Получить дельту координаты Y по типу хода.
+        /// </summary>
+        /// <param name="type">Тип хода.</param>
+        /// <returns>Смещение координаты.</returns>
         public static int ToDeltaY(this ConnectorType type)
         {
             switch (type)
