@@ -6,13 +6,22 @@ using System.Threading.Tasks;
 
 namespace SaboteurServer.Models
 {
+    /// <summary>
+    /// Параметры поиска игры.
+    /// </summary>
     public class SearchParams
     {
-        [Required]
-        public int PartySize { get; set; }
-        [Required]
-        public bool WithoutDeadlocks { get; set; }
-        [Required]
-        public bool SkipLoosers { get; set; }
+        /// <summary>
+        /// Желаемый количество игроков за столом.
+        /// </summary>
+        public int? PartySize { get; set; }
+        /// <summary>
+        /// Без строительства тупиков?
+        /// </summary>
+        public bool? WithoutDeadlocks { get; set; }
+        /// <summary>
+        /// Игроки с поломанными инструментами не получают золото?
+        /// </summary>
+        public bool? SkipLoosers { get; set; }
     }
 }
